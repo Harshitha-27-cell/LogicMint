@@ -1,34 +1,121 @@
-import exp from 'express'
-import cors from 'cors'
-import mongoose from 'mongoose'
-import { config } from 'dotenv'
-import { userApp } from './API/UserAPI.js'
+import exp from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
 
-config()
+import { userApp } from "./API/UserAPI.js";
+import { compilerApp } from "./API/CompilerAPI.js";
 
-const app = exp()
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://logic-mint.vercel.app"
-  ]
-}))
-app.use(exp.json())
+dotenv.config();
 
-app.use('/user-api', userApp)
+const app=exp();
 
-mongoose.connect(process.env.DB_URL)
-.then(() => {
 
-  console.log('DB connected')
-  app.get("/", (req, res) => {
-    res.send("Backend is running successfully");
+// Middleware
+
+app.use(exp.json());
+
+app.use(
+
+cors({
+
+origin:[
+
+"http://localhost:5173",
+
+"https://logic-mint.vercel.app"
+
+],
+
+credentials:true
+
+})
+
+);
+
+
+// Database
+
+mongoose.connect(
+
+process.env.DB_URL,
+
+{
+
+tls:true,
+tlsAllowInvalidCertificates:true
+
+}
+
+)
+
+.then(()=>{
+
+console.log(
+"Database connected successfully"
+);
+
+})
+
+.catch((err)=>{
+
+console.log(
+"DB Connection Error:"
+);
+
+console.log(err);
+
 });
-  app.listen(process.env.PORT, () => {
-    console.log(`Server listening on port ${process.env.PORT}`)
-  })
 
-})
-.catch((err) => {
-  console.log(err)
-})
+
+// Routes
+
+app.use(
+"/user-api",
+userApp
+);
+
+app.use(
+"/compiler-api",
+compilerApp
+);
+
+
+// Home Route
+
+app.get("/",(req,res)=>{
+
+res.send(
+"LogicMint Backend Running"
+);
+
+});
+
+
+// Invalid Route
+
+app.use((req,res)=>{
+
+res.status(404).send({
+
+message:"Invalid path"
+
+});
+
+});
+
+
+// Server
+
+const PORT=
+process.env.PORT || 4000;
+
+app.listen(PORT,()=>{
+
+console.log(
+
+`Server running on port ${PORT}`
+
+);
+
+});
