@@ -63,16 +63,14 @@ userApp.post('/signup', async (req, res) => {
             payload: userDoc
         })
 
-    }
-    catch (err) {
+    }catch (err) {
+    console.log("Signup error:", err);
 
-        res.status(500).json({
-            message: 'Error in Signup',
-            error: err.message
-        })
-
-    }
-
+    res.status(500).json({
+        message: "Error in Signup",
+        error: err.message
+    });
+}
 })
 
 
@@ -147,13 +145,15 @@ userApp.post('/login', async (req, res) => {
         })
 
     }
-    catch (err) {
+   catch (err) {
 
-        res.status(500).json({
-            message: 'Error in Login',
-            error: err.message
-        })
+    console.log("Login error:", err);
 
-    }
+    res.status(500).json({
+        message: 'Error in Login',
+        error: err.message
+    })
+
+}
 
 })
