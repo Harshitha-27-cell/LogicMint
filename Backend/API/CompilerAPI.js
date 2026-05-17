@@ -3,7 +3,7 @@ import axios from "axios";
 
 const compilerApp = exp.Router();
 
-compilerApp.post("/run", async (req,res)=>{
+compilerApp.post("/run", async(req,res)=>{
 
 try{
 
@@ -13,66 +13,57 @@ language_id,
 stdin
 }=req.body;
 
-console.log(
-"Received:",
-req.body
-);
+const submit = await axios.post(
 
-const response =
-await axios({
-
-method:"POST",
-
-url:"https://emkc.org/api/v2/piston/execute",
-
-data:{
-
-language:
-language_id===71 ? "python" :
-language_id===54 ? "cpp" :
-language_id===50 ? "c" :
-language_id===62 ? "java" :
-language_id===63 ? "javascript" :
-"python",
-
-version:"*",
-
-
-files:[
+"https://ce.judge0.com/submissions",
 
 {
-content:source_code
+source_code,
+language_id,
+stdin
+},
+
+{
+params:{
+base64_encoded:false
+}
 }
 
-],
+);
 
-stdin:stdin
+const token = submit.data.token;
 
+await new Promise(resolve=>
+setTimeout(resolve,3000)
+);
+
+const result = await axios.get(
+
+`https://ce.judge0.com/submissions/${token}`,
+
+{
+params:{
+base64_encoded:false
+}
 }
 
-});
+);
 
-res.json({
-
-stdout:
-response.data.run.output
-
-});
+res.json(result.data);
 
 }
 
 catch(err){
 
 console.log(
-"Compiler Error:",
+"FULL ERROR:",
 err.response?.data ||
 err.message
 );
 
 res.status(500).json({
 
-message:
-"Compilation Failed",
+message:"Compilation Failed",
 
 error:
 err.response?.data ||
