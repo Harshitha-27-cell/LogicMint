@@ -8,8 +8,10 @@ config()
 
 const app = exp()
 app.use(cors({
-  origin: "https://logic-mint.vercel.app",
-  credentials: true
+  origin: [
+    "http://localhost:5173",
+    "https://logic-mint.vercel.app"
+  ]
 }))
 app.use(exp.json())
 
