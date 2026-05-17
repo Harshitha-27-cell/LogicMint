@@ -17,7 +17,9 @@ mongoose.connect(process.env.DB_URL)
 .then(() => {
 
   console.log('DB connected')
-
+  app.get("/", (req, res) => {
+    res.send("Backend is running successfully");
+});
   app.listen(process.env.PORT, () => {
     console.log(`Server listening on port ${process.env.PORT}`)
   })
