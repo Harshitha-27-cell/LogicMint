@@ -77,10 +77,10 @@ function Signup() {
 
     try {
 
-      let res = await axios.post(
-        axios.post(`${import.meta.env.VITE_API_URL}/user-api/signup`),
-        user
-      );
+     let res = await axios.post(
+  `${import.meta.env.VITE_API_URL}/user-api/signup`,
+  user
+);
 
       setMessage(" Account Created Successfully");
 

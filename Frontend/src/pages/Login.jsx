@@ -31,10 +31,10 @@ function Login() {
 
     try {
 
-      const res = await axios.post(
-        axios.post(`${import.meta.env.VITE_API_URL}/user-api/login`),
-        user
-      );
+     const res = await axios.post(
+  `${import.meta.env.VITE_API_URL}/user-api/login`,
+  user
+);
 
       alert("Login Successful");
 
