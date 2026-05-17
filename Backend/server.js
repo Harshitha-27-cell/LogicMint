@@ -7,8 +7,10 @@ import { userApp } from './API/UserAPI.js'
 config()
 
 const app = exp()
-
-app.use(cors())
+app.use(cors({
+  origin: "https://logic-mint.vercel.app",
+  credentials: true
+}))
 app.use(exp.json())
 
 app.use('/user-api', userApp)

@@ -32,7 +32,7 @@ function Login() {
     try {
 
       const res = await axios.post(
-        axios.post(`${import.meta.env.VITE_API_URL}/api/login`),
+        axios.post(`${import.meta.env.VITE_API_URL}/user-api/login`),
         user
       );
 
