@@ -78,7 +78,7 @@ function Signup() {
     try {
 
       let res = await axios.post(
-        "http://localhost:4000/user-api/signup",
+        axios.post(`${import.meta.env.VITE_API_URL}/api/signup`),
         user
       );
 
