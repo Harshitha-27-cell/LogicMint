@@ -5,6 +5,9 @@ import cors from "cors";
 
 import { userApp } from "./API/UserAPI.js";
 import { compilerApp } from "./API/CompilerAPI.js";
+import {questionApp}
+from "./API/QuestionAPI.js";
+
 
 dotenv.config();
 
@@ -90,7 +93,10 @@ res.send(
 );
 
 });
-
+app.use(
+"/question-api",
+questionApp
+);
 
 // Invalid Route
 
