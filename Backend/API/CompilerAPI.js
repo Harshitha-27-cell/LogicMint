@@ -1,7 +1,7 @@
 import exp from "express";
 import axios from "axios";
 
-import Submission from "../models/submissionModel.js";
+import Submission from "../Models/SubmissionModel.js";
 import { QuestionModel } from "../Models/QuestionModel.js";
 const compilerApp = exp.Router();
 

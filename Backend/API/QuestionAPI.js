@@ -1,6 +1,6 @@
 import exp from "express";
 import { QuestionModel } from "../Models/QuestionModel.js";
-import Submission from "../models/submissionModel.js";
+import Submission from "../Models/SubmissionModel.js";
 
 const questionApp=exp.Router();
 
