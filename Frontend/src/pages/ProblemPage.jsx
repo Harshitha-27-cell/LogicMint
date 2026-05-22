@@ -66,26 +66,46 @@ await axios.post(
 source_code:code,
 language_id:71,
 stdin:input,
-userId:user?._id,
+userId:user._id,
 questionId:id
 
 }
 
 );
 
+if(res.data.solved){
+
 setOutput(
 
-res.data.stdout ||
+`✅ Accepted
 
-res.data.stderr ||
-
-res.data.compile_output ||
-
-"Executed"
+Passed:
+${res.data.passedCases}
+/
+${res.data.totalCases}`
 
 );
 
-fetchQuestion();
+}
+
+else{
+
+setOutput(
+
+`❌ Wrong Answer
+
+Input:
+${res.data.failedCase?.input || ""}
+
+Expected:
+${res.data.failedCase?.expected || ""}
+
+Got:
+${res.data.failedCase?.actual || ""}`
+
+);
+
+}
 
 }
 
@@ -93,14 +113,17 @@ catch(err){
 
 console.log(err);
 
-setOutput("Execution failed");
+setOutput(
+
+"Error while compiling"
+
+);
 
 }
 
 setLoading(false);
 
 };
-
 
 
 return(
@@ -166,7 +189,6 @@ Examples
 </h2>
 
 {
-
 question.visibleTestCases
 ?.slice(0,2)
 .map((example,index)=>(
@@ -185,7 +207,7 @@ Example {index+1}
 <p className="mt-3">
 
 Input:
-
+{" "}
 {example.input || "No input"}
 
 </p>
@@ -193,29 +215,24 @@ Input:
 <p className="mt-2">
 
 Output:
-
+{" "}
 {example.output}
 
 </p>
 
-<p className="mt-3 text-gray-400">
+<p className="text-gray-400 mt-2">
 
 Explanation:
 
-{
+{" "}
 
-question.explanation ||
-
-"No explanation available"
-
-}
+{question.explanation}
 
 </p>
 
 </div>
 
 ))
-
 }
 
 
@@ -254,15 +271,15 @@ Test Case {index+1}
 <p>
 
 Input:
-
-{test.input}
+{" "}
+{test.input || "No input"}
 
 </p>
 
 <p>
 
 Expected:
-
+{" "}
 {test.output}
 
 </p>
@@ -423,9 +440,7 @@ p-4
 
 "
 
->
-
-</textarea>
+/>
 
 </div>
 
@@ -451,6 +466,7 @@ p-4
 
 text-green-400
 overflow-auto
+whitespace-pre-wrap
 
 "
 

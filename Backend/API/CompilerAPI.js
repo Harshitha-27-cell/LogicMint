@@ -4,207 +4,185 @@ import axios from "axios";
 import Submission from "../Models/SubmissionModel.js";
 import { QuestionModel } from "../Models/QuestionModel.js";
 
-const compilerApp = exp.Router();
+const compilerApp=exp.Router();
 
-compilerApp.post("/run", async (req, res) => {
+compilerApp.post("/run",async(req,res)=>{
 
-try {
+try{
 
-const {
+const{
+
 source_code,
 language_id,
-stdin,
 userId,
 questionId
-} = req.body;
 
+}=req.body;
 
-// Submit code to Judge0
+const question=
+await QuestionModel.findById(questionId);
 
-const submit = await axios.post(
+if(!question){
+
+return res.status(404).send({
+message:"Question not found"
+});
+
+}
+
+const testCases=[
+
+...question.visibleTestCases,
+...question.hiddenTestCases
+
+];
+
+let passedCases=0;
+
+let failedCase=null;
+
+for(let test of testCases){
+
+const submit=
+await axios.post(
 
 "https://ce.judge0.com/submissions",
 
 {
+
 source_code,
 language_id,
-stdin
+stdin:test.input
+
 },
 
 {
-params: {
-base64_encoded: false
+
+params:{
+base64_encoded:false
 }
+
 }
 
 );
 
-const token = submit.data.token;
+const token=
+submit.data.token;
 
+await new Promise(
 
-// Wait for execution
+r=>setTimeout(r,2000)
 
-await new Promise(resolve =>
-setTimeout(resolve, 3000)
 );
 
-
-// Get result
-
-const result = await axios.get(
+const result=
+await axios.get(
 
 `https://ce.judge0.com/submissions/${token}`,
 
 {
-params: {
-base64_encoded: false
+
+params:{
+base64_encoded:false
 }
+
 }
 
 );
 
+const actualOutput=
 
-// Get output
+result.data.stdout?.trim()||"";
 
-const output =
+const expectedOutput=
 
-result.data.stdout?.trim() ||
+test.output.trim();
 
-result.data.stderr?.trim() ||
+if(
 
-result.data.compile_output?.trim() ||
+actualOutput===expectedOutput
 
-"";
-
-
-// =========================
-// Standalone Compiler Mode
-// =========================
-
-if (!questionId) {
-
-return res.json({
-
-stdout: result.data.stdout,
-stderr: result.data.stderr,
-compile_output: result.data.compile_output
-
-});
-
-}
-
-
-// =========================
-// Practice Question Mode
-// =========================
-
-const question =
-await QuestionModel.findById(
-questionId
-);
-
-if (!question) {
-
-return res.status(404).json({
-
-message: "Question not found"
-
-});
-
-}
-
-
-// Get test cases
-
-const visible =
-question.visibleTestCases || [];
-
-const hidden =
-question.hiddenTestCases || [];
-
-
-let passedCases = 0;
-
-
-// Compare outputs
-
-for (let test of [...visible, ...hidden]) {
-
-if (
-output === test.output.trim()
-) {
+){
 
 passedCases++;
 
 }
 
+else{
+
+failedCase={
+
+input:test.input,
+expected:expectedOutput,
+actual:actualOutput
+
+};
+
+break;
+
 }
 
+}
 
-const totalCases =
+const totalCases=
+testCases.length;
 
-visible.length +
-hidden.length;
+let solved=false;
 
+if(
 
-// Save only if all passed
+passedCases===totalCases
 
-if (
-passedCases === totalCases
-) {
+){
+
+solved=true;
 
 await Submission.findOneAndUpdate(
 
 {
+
 userId,
 questionId
+
 },
 
 {
-status: "Solved",
+
+status:"Solved",
+
 passedCases,
 totalCases
+
 },
 
 {
-upsert: true,
-new: true
+
+upsert:true
+
 }
 
 );
 
 }
 
+res.send({
 
-// Send response
-
-res.json({
-
-stdout: result.data.stdout,
-stderr: result.data.stderr,
-compile_output: result.data.compile_output,
+solved,
 passedCases,
-totalCases
+totalCases,
+failedCase
 
 });
 
 }
 
-catch (err) {
+catch(err){
 
-console.log(
-"FULL ERROR:",
-err.response?.data ||
-err.message
-);
+console.log(err);
 
-res.status(500).json({
+res.status(500).send({
 
-message: "Compilation Failed",
-
-error:
-err.response?.data ||
-err.message
+message:"Compilation Failed"
 
 });
 
@@ -212,4 +190,4 @@ err.message
 
 });
 
-export { compilerApp };
+export {compilerApp};
