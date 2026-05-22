@@ -2,7 +2,7 @@ import exp from "express";
 import axios from "axios";
 
 import Submission from "../Models/SubmissionModel.js";
-import { QuestionModel } from "../Models/QuestionModel.js";
+import {QuestionModel} from "../Models/QuestionModel.js";
 
 const compilerApp=exp.Router();
 
@@ -14,32 +14,42 @@ const{
 
 source_code,
 language_id,
+stdin="",
 userId,
 questionId
 
 }=req.body;
 
+
 const question=
-await QuestionModel.findById(questionId);
+questionId
+?
+await QuestionModel.findById(questionId)
+:
+null;
 
-if(!question){
 
-return res.status(404).send({
-message:"Question not found"
-});
+const testCases=
 
+question
+?
+[
+...(question.visibleTestCases||[]),
+...(question.hiddenTestCases||[])
+]
+:
+[
+{
+input:stdin,
+output:null
 }
-
-const testCases=[
-
-...question.visibleTestCases,
-...question.hiddenTestCases
-
 ];
+
 
 let passedCases=0;
 
 let failedCase=null;
+
 
 for(let test of testCases){
 
@@ -66,14 +76,18 @@ base64_encoded:false
 
 );
 
+
 const token=
 submit.data.token;
 
+
 await new Promise(
 
-r=>setTimeout(r,2000)
+resolve=>
+setTimeout(resolve,2000)
 
 );
+
 
 const result=
 await axios.get(
@@ -90,17 +104,42 @@ base64_encoded:false
 
 );
 
-const actualOutput=
 
-result.data.stdout?.trim()||"";
+const actual=
 
-const expectedOutput=
+result.data.stdout?.trim()
 
-test.output.trim();
+||
+
+result.data.stderr?.trim()
+
+||
+
+result.data.compile_output?.trim()
+
+||
+
+"";
+
 
 if(
 
-actualOutput===expectedOutput
+!question
+
+){
+
+return res.send({
+
+stdout:actual
+
+});
+
+}
+
+
+if(
+
+actual===test.output.trim()
 
 ){
 
@@ -113,8 +152,8 @@ else{
 failedCase={
 
 input:test.input,
-expected:expectedOutput,
-actual:actualOutput
+expected:test.output,
+actual
 
 };
 
@@ -124,18 +163,26 @@ break;
 
 }
 
+
+
 const totalCases=
 testCases.length;
 
-let solved=false;
+
+const solved=
+
+passedCases===totalCases;
+
 
 if(
 
-passedCases===totalCases
+solved
+&&
+userId
+&&
+questionId
 
 ){
-
-solved=true;
 
 await Submission.findOneAndUpdate(
 
@@ -149,9 +196,9 @@ questionId
 {
 
 status:"Solved",
-
 passedCases,
-totalCases
+totalCases,
+code:source_code
 
 },
 
@@ -164,6 +211,7 @@ upsert:true
 );
 
 }
+
 
 res.send({
 
