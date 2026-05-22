@@ -1,16 +1,17 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-import allQuestions from "../Frontend/src/data/allQuestions.js";
-import { QuestionModel } from "./Models/QuestionModel.js";
+import allQuestions
+from "../Frontend/src/data/allQuestions.js";
+
+import {QuestionModel}
+from "./Models/QuestionModel.js";
 
 dotenv.config();
 
-await mongoose.connect(
+mongoose.connect(
 process.env.DB_URL
 );
-
-try{
 
 await QuestionModel.deleteMany({});
 
@@ -19,17 +20,7 @@ allQuestions
 );
 
 console.log(
-"100 Questions Added Successfully"
+"Questions updated successfully"
 );
 
 process.exit();
-
-}
-
-catch(err){
-
-console.log(err);
-
-process.exit(1);
-
-}

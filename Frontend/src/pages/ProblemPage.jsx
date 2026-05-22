@@ -1,25 +1,16 @@
-import {useEffect,useState} from "react";
+import { useEffect,useState } from "react";
 import axios from "axios";
-import {useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 function ProblemPage(){
 
 const {id}=useParams();
 
-const [question,setQuestion]=
-useState({});
-
-const [code,setCode]=
-useState("");
-
-const [input,setInput]=
-useState("");
-
-const [output,setOutput]=
-useState("");
-
-const [loading,setLoading]=
-useState(false);
+const [question,setQuestion]=useState({});
+const [code,setCode]=useState("");
+const [input,setInput]=useState("");
+const [output,setOutput]=useState("");
+const [loading,setLoading]=useState(false);
 
 const user=
 JSON.parse(
@@ -33,6 +24,7 @@ fetchQuestion();
 },[]);
 
 
+
 const fetchQuestion=async()=>{
 
 try{
@@ -44,9 +36,7 @@ await axios.get(
 
 );
 
-setQuestion(
-res.data
-);
+setQuestion(res.data);
 
 }
 
@@ -62,9 +52,9 @@ console.log(err);
 
 const runCode=async()=>{
 
-setLoading(true);
-
 try{
+
+setLoading(true);
 
 const res=
 await axios.post(
@@ -74,13 +64,9 @@ await axios.post(
 {
 
 source_code:code,
-
 language_id:71,
-
 stdin:input,
-
-userId:user._id,
-
+userId:user?._id,
 questionId:id
 
 }
@@ -93,15 +79,21 @@ res.data.stdout ||
 
 res.data.stderr ||
 
-""
+res.data.compile_output ||
+
+"Executed"
 
 );
+
+fetchQuestion();
 
 }
 
 catch(err){
 
 console.log(err);
+
+setOutput("Execution failed");
 
 }
 
@@ -113,67 +105,37 @@ setLoading(false);
 
 return(
 
-<div className="
+<div className="min-h-screen bg-[#0d0d0d] text-white p-5">
 
-min-h-screen
-bg-[#0d0d0d]
-text-white
-p-5
-
-">
-
-<div className="
-
-grid
-grid-cols-2
-gap-5
-
-">
+<div className="grid grid-cols-2 gap-5">
 
 
 {/* LEFT */}
 
-<div className="
+<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-6 shadow-lg">
 
-bg-[#141414]
-rounded-[25px]
-border
-border-[#8b5e3c]
-
-p-6
-
-shadow-lg
-
-">
-
-<h1 className="
-
-text-4xl
-font-bold
-
-">
+<h1 className="text-4xl font-bold">
 
 {question.title}
 
 </h1>
 
 
-<div className="
+<div className="mt-5">
 
-flex
-gap-3
-mt-5
+<span className={`
 
-">
-
-<span className="
-
-bg-green-500
-px-3
-py-1
+px-4
+py-2
 rounded-xl
 
-">
+${question.difficulty==="Easy"
+?"bg-green-500":
+question.difficulty==="Medium"
+?"bg-orange-500":
+"bg-red-500"}
+
+`}>
 
 {question.difficulty}
 
@@ -182,55 +144,49 @@ rounded-xl
 </div>
 
 
-<h2 className="
-
-mt-8
-font-bold
-text-xl
-
-">
+<h2 className="mt-8 font-bold text-xl">
 
 Problem Statement
 
 </h2>
 
-<p className="
-
-mt-3
-text-gray-300
-
-">
+<p className="mt-3 text-gray-300">
 
 {question.description}
 
 </p>
 
 
+{/* EXAMPLES */}
 
-<div className="mt-8">
-
-<h2 className="font-bold">
+<h2 className="mt-8 font-bold text-xl">
 
 Examples
 
 </h2>
 
-<div className="
+{
 
-bg-black
-p-5
-rounded-xl
-mt-3
+question.visibleTestCases
+?.slice(0,2)
+.map((example,index)=>(
 
-">
+<div
+key={index}
+className="bg-black p-5 rounded-xl mt-4"
+>
 
-<p>
+<h2 className="font-bold">
+
+Example {index+1}
+
+</h2>
+
+<p className="mt-3">
 
 Input:
 
-{" "}
-
-{question.sampleInput}
+{example.input || "No input"}
 
 </p>
 
@@ -238,25 +194,40 @@ Input:
 
 Output:
 
-{" "}
+{example.output}
 
-{question.sampleOutput}
+</p>
+
+<p className="mt-3 text-gray-400">
+
+Explanation:
+
+{
+
+question.explanation ||
+
+"No explanation available"
+
+}
 
 </p>
 
 </div>
 
-</div>
+))
+
+}
 
 
 
-<div className="mt-8">
+{/* TEST CASES */}
 
-<h2 className="font-bold">
+<h2 className="mt-8 font-bold text-xl">
 
 Test Cases
 
 </h2>
+
 
 <div className="space-y-4 mt-4">
 
@@ -270,13 +241,7 @@ question.visibleTestCases?.map(
 
 key={index}
 
-className="
-
-bg-[#1f1f1f]
-p-4
-rounded-xl
-
-"
+className="bg-[#1f1f1f] p-4 rounded-xl"
 
 >
 
@@ -314,29 +279,15 @@ Expected:
 
 </div>
 
-</div>
-
 
 
 {/* RIGHT */}
 
 <div className="space-y-5">
 
+<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-5">
 
-<div className="
-
-bg-[#141414]
-
-rounded-[25px]
-
-border
-border-[#8b5e3c]
-
-p-5
-
-">
-
-<h1 className="font-bold">
+<h1 className="font-bold text-2xl">
 
 Code Editor
 
@@ -348,9 +299,7 @@ value={code}
 
 onChange={(e)=>{
 
-setCode(
-e.target.value
-)
+setCode(e.target.value)
 
 }}
 
@@ -358,17 +307,11 @@ className="
 
 w-full
 h-[350px]
-
 bg-black
-
 mt-5
-
 rounded-xl
-
 p-5
-
 outline-none
-
 font-mono
 
 "
@@ -378,13 +321,7 @@ placeholder="Write code here..."
 />
 
 
-<div className="
-
-flex
-gap-5
-mt-5
-
-">
+<div className="flex gap-5 mt-5">
 
 <button
 
@@ -393,14 +330,12 @@ onClick={runCode}
 className="
 
 bg-[#8b5e3c]
-
 px-8
 py-3
-
 rounded-xl
 
+hover:scale-110
 hover:brightness-125
-hover:scale-105
 
 transition
 
@@ -432,14 +367,12 @@ onClick={runCode}
 className="
 
 bg-[#b47b52]
-
 px-8
 py-3
-
 rounded-xl
 
+hover:scale-110
 hover:brightness-125
-hover:scale-105
 
 transition
 
@@ -457,26 +390,9 @@ Submit
 
 
 
-<div className="
+<div className="grid grid-cols-2 gap-5">
 
-grid
-grid-cols-2
-gap-5
-
-">
-
-<div className="
-
-bg-[#141414]
-
-rounded-[25px]
-
-border
-border-[#8b5e3c]
-
-p-5
-
-">
+<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-5">
 
 <h2>
 
@@ -490,9 +406,7 @@ value={input}
 
 onChange={(e)=>{
 
-setInput(
-e.target.value
-)
+setInput(e.target.value)
 
 }}
 
@@ -502,35 +416,21 @@ w-full
 h-[180px]
 
 bg-black
-
 rounded-xl
 
 mt-3
-
 p-4
-
-outline-none
 
 "
 
-/>
+>
+
+</textarea>
 
 </div>
 
 
-
-<div className="
-
-bg-[#141414]
-
-rounded-[25px]
-
-border
-border-[#8b5e3c]
-
-p-5
-
-">
+<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-5">
 
 <h2>
 
@@ -538,20 +438,23 @@ Output
 
 </h2>
 
-<div className="
+<div
+
+className="
 
 bg-black
 rounded-xl
-mt-3
 h-[180px]
 
+mt-3
 p-4
 
+text-green-400
 overflow-auto
 
-text-green-400
+"
 
-">
+>
 
 {output}
 

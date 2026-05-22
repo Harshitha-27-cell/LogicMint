@@ -3,6 +3,9 @@ import { QuestionModel } from "../Models/QuestionModel.js";
 
 const questionApp=exp.Router();
 
+
+// SINGLE QUESTION ROUTE FIRST
+
 questionApp.get(
 "/problem/:id",
 async(req,res)=>{
@@ -14,19 +17,33 @@ await QuestionModel.findById(
 req.params.id
 );
 
+if(!question){
+
+return res.status(404).send({
+message:"Question not found"
+});
+
+}
+
 res.send(question);
 
 }
 
 catch(err){
 
+console.log(err);
+
 res.status(500).send({
-message:"Error"
+message:"Server Error"
 });
 
 }
 
-});
+}
+);
+
+
+// LANGUAGE ROUTE SECOND
 
 questionApp.get(
 "/:language",
@@ -47,12 +64,15 @@ res.send(questions);
 
 catch(err){
 
+console.log(err);
+
 res.status(500).send({
 message:"Error"
 });
 
 }
 
-});
+}
+);
 
 export {questionApp};

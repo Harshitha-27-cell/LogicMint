@@ -1,25 +1,31 @@
 import pythonQuestions from "./pythonQuestions.js";
 
-const createQuestions=(lang)=>{
+const createQuestions=(language)=>{
 
-return pythonQuestions.map(q=>({
+return pythonQuestions.map((q)=>({
+
 ...q,
-language:lang
+
+language
+
 }));
 
 };
 
 const cppQuestions=createQuestions("cpp");
-const javaQuestions=createQuestions("java");
+
 const cQuestions=createQuestions("c");
+
+const javaQuestions=createQuestions("java");
+
 const jsQuestions=createQuestions("javascript");
 
 const allQuestions=[
 
-...cppQuestions,
 ...pythonQuestions,
-...javaQuestions,
+...cppQuestions,
 ...cQuestions,
+...javaQuestions,
 ...jsQuestions
 
 ];
