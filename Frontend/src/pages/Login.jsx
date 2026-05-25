@@ -1,32 +1,46 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
+
 import logo from "../assets/logo.png";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function Login() {
+import {
+FaEye,
+FaEyeSlash
+}
+from "react-icons/fa";
 
-const navigate = useNavigate();
+function Login(){
 
-const [showPassword, setShowPassword] = useState(false);
+const navigate=useNavigate();
 
-const [user, setUser] = useState({
+const [showPassword,setShowPassword]=
+useState(false);
+
+const [user,setUser]=useState({
 
 email:"",
 password:""
 
 });
 
+
 const handleChange=(e)=>{
 
 setUser({
 
 ...user,
-[e.target.name]:e.target.value
+
+[e.target.name]:
+e.target.value
 
 });
 
 };
+
+
+
+// LOGIN FUNCTION
 
 const handleLogin=async(e)=>{
 
@@ -34,28 +48,33 @@ e.preventDefault();
 
 try{
 
-const res=await axios.post(
+const res=
+
+await axios.post(
 
 `${import.meta.env.VITE_API_URL}/user-api/login`,
+
 user
 
 );
 
-// UPDATED SUCCESS BLOCK
-
-const loggedUser = res.data.user;
-
 console.log(
+
 "LOGIN RESPONSE:",
-loggedUser
+
+res.data
+
 );
+
+
+// STORE USER
 
 localStorage.setItem(
 
 "user",
 
 JSON.stringify(
-loggedUser
+res.data.user
 )
 
 );
@@ -68,16 +87,41 @@ res.data.token
 
 );
 
-alert("Login Successful");
 
-if(loggedUser.role==="admin"){
+// ADMIN LOGIN
 
-navigate("/admin");
+if(
+
+res.data.user.admin
+
+){
+
+navigate(
+
+"/admin",
+
+{
+replace:true
+}
+
+);
 
 }
+
+
+// NORMAL USER LOGIN
+
 else{
 
-navigate("/home");
+navigate(
+
+"/home",
+
+{
+replace:true
+}
+
+);
 
 }
 
@@ -97,13 +141,18 @@ err.response?.data?.message ||
 
 };
 
+
+
 return(
 
 <div
+
 className="
 
 min-h-screen
+
 bg-gradient-to-br
+
 from-[#f8f4ef]
 via-[#f3ece4]
 to-[#efe6dc]
@@ -111,10 +160,13 @@ to-[#efe6dc]
 flex
 justify-center
 items-center
+
 px-4
 
 "
+
 >
+
 
 <form
 
@@ -123,8 +175,11 @@ onSubmit={handleLogin}
 className="
 
 relative
+
 bg-white/40
+
 backdrop-blur-2xl
+
 border
 border-white/30
 
@@ -141,9 +196,11 @@ max-w-[450px]
 
 >
 
+
 <img
 
 src={logo}
+
 alt="logo"
 
 className="
@@ -161,12 +218,15 @@ object-cover
 shadow-xl
 
 absolute
+
 top-5
 left-5
 
 "
 
 />
+
+
 
 <div className="mt-24">
 
@@ -176,15 +236,15 @@ className="
 
 text-5xl
 font-bold
+
 text-[#8b5e3c]
+
 mb-2
 
 "
 
 style={{
-
 fontFamily:"Georgia"
-
 }}
 
 >
@@ -193,12 +253,15 @@ Welcome Back
 
 </h1>
 
+
 <p
 
 className="
 
 text-[#5a4030]
+
 text-lg
+
 mb-8
 
 "
@@ -210,6 +273,8 @@ Login to continue your coding journey
 </p>
 
 </div>
+
+
 
 <input
 
@@ -228,13 +293,20 @@ onChange={handleChange}
 className="
 
 w-full
+
 p-4
+
 rounded-2xl
+
 border
 border-[#d7b89a]
+
 bg-white/60
+
 outline-none
+
 mb-5
+
 focus:ring-4
 focus:ring-[#d7b89a]
 
@@ -242,16 +314,24 @@ focus:ring-[#d7b89a]
 
 />
 
+
+
 <div className="relative">
 
 <input
 
 type={
+
 showPassword
+
 ?
+
 "text"
+
 :
+
 "password"
+
 }
 
 name="password"
@@ -267,19 +347,27 @@ onChange={handleChange}
 className="
 
 w-full
+
 p-4
+
 rounded-2xl
+
 border
 border-[#d7b89a]
+
 bg-white/60
+
 outline-none
+
 mb-5
+
 focus:ring-4
 focus:ring-[#d7b89a]
 
 "
 
 />
+
 
 <button
 
@@ -288,7 +376,9 @@ type="button"
 onClick={()=>{
 
 setShowPassword(
+
 !showPassword
+
 )
 
 }}
@@ -296,10 +386,14 @@ setShowPassword(
 className="
 
 absolute
+
 top-5
 right-5
+
 text-[#8b5e3c]
+
 text-xl
+
 cursor-pointer
 
 "
@@ -309,9 +403,13 @@ cursor-pointer
 {
 
 showPassword
+
 ?
+
 <FaEyeSlash/>
+
 :
+
 <FaEye/>
 
 }
@@ -320,24 +418,39 @@ showPassword
 
 </div>
 
+
+
 <button
+
+type="submit"
 
 className="
 
 w-full
+
 bg-[#8b5e3c]
+
 text-white
+
 py-4
+
 rounded-full
+
 text-lg
 font-semibold
+
+cursor-pointer
+
 hover:scale-105
 hover:brightness-110
+
 hover:shadow-[0_0_30px_rgba(139,94,60,0.5)]
+
 active:scale-95
+
 transition
+
 duration-300
-cursor-pointer
 
 "
 
@@ -347,12 +460,16 @@ Login
 
 </button>
 
+
+
 <p
 
 className="
 
 text-center
+
 mt-6
+
 text-[#5a4030]
 
 "
@@ -368,8 +485,11 @@ to="/signup"
 className="
 
 text-[#8b5e3c]
+
 font-bold
+
 ml-2
+
 hover:underline
 
 "
@@ -386,7 +506,7 @@ Signup
 
 </div>
 
-)
+);
 
 }
 

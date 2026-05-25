@@ -1,6 +1,12 @@
 import { useEffect,useState } from "react";
 import axios from "axios";
 import AdminNavbar from "../components/AdminNavbar";
+import {
+FaUsers,
+FaTrophy,
+FaSearch
+}
+from "react-icons/fa";
 
 function AdminDashboard(){
 
@@ -13,12 +19,9 @@ fetchUsers();
 
 },[]);
 
-
 const fetchUsers=async()=>{
 
 try{
-
-console.log("Fetching users...");
 
 const res=await axios.get(
 
@@ -26,10 +29,7 @@ const res=await axios.get(
 
 );
 
-console.log(
-"Users response:",
-res.data
-);
+console.log(res.data);
 
 setUsers(
 res.data || []
@@ -39,13 +39,7 @@ res.data || []
 
 catch(err){
 
-console.log(
-
-err.response?.data ||
-
-err.message
-
-);
+console.log(err);
 
 }
 
@@ -58,10 +52,7 @@ setLoading(false);
 };
 
 
-
 const disableUser=async(id)=>{
-
-try{
 
 await axios.put(
 
@@ -71,21 +62,10 @@ await axios.put(
 
 fetchUsers();
 
-}
-
-catch(err){
-
-console.log(err);
-
-}
-
 };
 
 
-
 const enableUser=async(id)=>{
-
-try{
 
 await axios.put(
 
@@ -95,47 +75,222 @@ await axios.put(
 
 fetchUsers();
 
-}
-
-catch(err){
-
-console.log(err);
-
-}
-
 };
-
-
 
 return(
 
-<div className="min-h-screen bg-[#f6f2ed]">
+<div className="min-h-screen bg-[#f7f3ef]">
 
 <AdminNavbar/>
 
 <div className="p-8">
 
-<h1 className="
+{/* TOP */}
 
-text-4xl
-font-bold
-text-[#8b5e3c]
-mb-8
+<div className="flex justify-between items-start">
+
+<div>
+
+<h1 className="text-5xl font-bold text-[#8b5e3c]">
+
+Welcome back, Admin
+
+</h1>
+
+<p className="text-gray-500 mt-2">
+
+Overview of your platform
+
+</p>
+
+</div>
+
+</div>
+
+
+
+{/* STATS */}
+
+<div className="grid grid-cols-3 gap-6 mt-10">
+
+<div className="bg-white rounded-[30px] p-6 shadow-lg">
+
+<div className="flex gap-4 items-center">
+
+<div className="bg-[#8b5e3c] p-4 rounded-full text-white">
+
+<FaUsers size={25}/>
+
+</div>
+
+<div>
+
+<h1 className="text-3xl font-bold">
+
+{users.length}
+
+</h1>
+
+<p>Total Users</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div className="bg-white rounded-[30px] p-6 shadow-lg">
+
+<div className="flex gap-4 items-center">
+
+<div className="bg-[#8b5e3c] p-4 rounded-full text-white">
+
+<FaTrophy size={25}/>
+
+</div>
+
+<div>
+
+<h1 className="text-3xl font-bold">
+
+0
+
+</h1>
+
+<p>Contests Conducted</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div className="
+
+bg-gradient-to-r
+from-[#8b5e3c]
+to-[#b47b52]
+
+rounded-[30px]
+p-6
+
+text-white
+
+shadow-xl
 
 ">
 
-Admin Dashboard
+<h1 className="text-3xl font-bold">
+
+Conduct Contests
 
 </h1>
+
+<p className="mt-3">
+
+Create coding contests
+
+</p>
+
+<button
+
+className="
+
+mt-6
+
+bg-white
+text-[#8b5e3c]
+
+px-6
+py-3
+
+rounded-xl
+
+font-bold
+
+cursor-pointer
+
+hover:scale-105
+
+transition
+
+"
+
+>
+
+Conduct Contest
+
+</button>
+
+</div>
+
+</div>
+
+
+
+{/* USERS TABLE */}
+
+<div className="
+
+bg-white
+
+rounded-[30px]
+
+shadow-xl
+
+mt-10
+
+p-6
+
+">
+
+<div className="flex justify-between mb-6">
+
+<h1 className="text-2xl font-bold">
+
+Enable / Disable Users
+
+</h1>
+
+<div className="
+
+bg-[#f3f3f3]
+
+px-4
+py-2
+
+rounded-xl
+
+flex
+items-center
+gap-3
+
+">
+
+<FaSearch/>
+
+<input
+
+placeholder="Search users"
+
+className="bg-transparent outline-none"
+
+/>
+
+</div>
+
+</div>
 
 
 {
 
 loading ?
 
-<div className="text-xl">
+<div>
 
-Loading Users...
+Loading...
 
 </div>
 
@@ -143,12 +298,7 @@ Loading Users...
 
 users.length===0 ?
 
-<div className="
-
-text-xl
-text-red-500
-
-">
+<div className="text-red-500">
 
 No Users Found
 
@@ -156,74 +306,84 @@ No Users Found
 
 :
 
-<div className="space-y-5">
+<table className="w-full">
+
+<thead>
+
+<tr className="border-b">
+
+<th className="py-4">
+
+User
+
+</th>
+
+<th>
+
+Email
+
+</th>
+
+<th>
+
+Status
+
+</th>
+
+<th>
+
+Action
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
 
 {
 
-users.map((user)=>(
+users.map((user,index)=>(
 
-<div
-
+<tr
 key={user._id}
-
-className="
-
-bg-white
-rounded-[25px]
-
-p-6
-
-shadow-lg
-
-flex
-justify-between
-items-center
-
-hover:scale-[1.02]
-hover:shadow-2xl
-
-transition-all
-
-"
-
+className="border-b text-center"
 >
 
-<div>
-
-<h1 className="
-
-font-bold
-text-xl
-
-">
+<td className="py-5">
 
 {user.username}
 
-</h1>
+</td>
 
-<p className="mt-2">
+<td>
 
 {user.email}
 
-</p>
+</td>
 
-<p className="mt-2">
+<td>
 
-Status:
+<span
 
-<span className={
+className={`
 
+px-4
+py-2
+rounded-full
+
+${
 user.isDisabled
-
 ?
-
-"text-red-500"
-
+"bg-red-100 text-red-500"
 :
+"bg-green-100 text-green-500"
+}
 
-"text-green-500"
+`}
 
-}>
+>
 
 {
 
@@ -231,34 +391,28 @@ user.isDisabled
 
 ?
 
-" Disabled"
+"Disabled"
 
 :
 
-" Active"
+"Active"
 
 }
 
 </span>
 
-</p>
+</td>
 
-</div>
-
-
+<td>
 
 <button
 
 onClick={()=>{
 
 user.isDisabled
-
 ?
-
 enableUser(user._id)
-
 :
-
 disableUser(user._id)
 
 }}
@@ -269,17 +423,16 @@ bg-[#8b5e3c]
 
 text-white
 
-px-6
-py-3
+px-5
+py-2
 
 rounded-xl
 
 cursor-pointer
 
-hover:scale-110
-hover:brightness-110
+hover:scale-105
 
-transition-all
+transition
 
 "
 
@@ -301,15 +454,21 @@ user.isDisabled
 
 </button>
 
-</div>
+</td>
+
+</tr>
 
 ))
 
 }
 
-</div>
+</tbody>
+
+</table>
 
 }
+
+</div>
 
 </div>
 

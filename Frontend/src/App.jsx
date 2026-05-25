@@ -11,7 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Loader from "./components/Loader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
-
+import CreateContest from "./pages/CreateContest";
 function App(){
 
 return(
@@ -30,8 +30,15 @@ element={
 </Loader>
 }
 />
-
-
+{/* Conduct Contest */}
+<Route
+path="/contest"
+element={
+<AdminRoute>
+<CreateContest/>
+</AdminRoute>
+}
+/>
 {/* Login */}
 
 <Route

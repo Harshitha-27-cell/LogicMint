@@ -3,14 +3,14 @@ import { FaSignOutAlt } from "react-icons/fa";
 
 function AdminNavbar(){
 
-const navigate=useNavigate();
+const navigate = useNavigate();
 
-const user=
+const user =
 JSON.parse(
 localStorage.getItem("user")
 );
 
-const logout=()=>{
+const logout = ()=>{
 
 localStorage.removeItem("user");
 localStorage.removeItem("token");
@@ -21,7 +21,8 @@ navigate("/login");
 
 return(
 
-<div className="
+<div
+className="
 
 bg-white
 shadow-xl
@@ -35,7 +36,8 @@ items-center
 border-b
 border-[#d6c1af]
 
-">
+"
+>
 
 {/* LEFT */}
 
@@ -65,6 +67,8 @@ LogicMint Admin
 
 <div className="flex gap-8">
 
+{/* HOME */}
+
 <button
 
 onClick={()=>
@@ -86,6 +90,8 @@ Home
 </button>
 
 
+{/* CONTEST */}
+
 <button
 
 onClick={()=>
@@ -94,7 +100,7 @@ navigate("/contest")
 
 className="
 
-font-semibold
+font-bold
 hover:text-[#8b5e3c]
 cursor-pointer
 
