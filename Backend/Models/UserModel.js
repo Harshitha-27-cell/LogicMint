@@ -26,9 +26,29 @@ default:""
 isDisabled:{
 type:Boolean,
 default:false
+},
+
+role:{
+type:String,
+enum:["user","admin"],
+default:"user"
+},
+
+refreshToken:{
+type:String,
+default:""
+},
+
+resetToken:{
+type:String,
+default:""
+},
+
+resetTokenExpiry:{
+type:Date
 }
 
-});
+},{ timestamps:true });
 
 export const UserModel=
 

@@ -2,20 +2,18 @@ import exp from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../Models/UserModel.js";
+import { verifyToken, verifyAdmin } from "../middlewares/authMiddleware.js";
 
 export const userApp = exp.Router();
 
-
-// PREDEFINED ADMIN
-
-const ADMIN_EMAIL =
+const ADMIN_EMAIL=
 "admin@logicmint.com";
 
-const ADMIN_PASSWORD =
-"admin123";
+const ADMIN_PASSWORD=
+"LogicMint123";
 
 
-// ================= SIGNUP =================
+// SIGNUP
 
 userApp.post(
 "/signup",
@@ -23,13 +21,12 @@ async(req,res)=>{
 
 try{
 
-const {
+const{
 username,
 email,
 password,
 profilePic
 }=req.body;
-
 
 const existing=
 await UserModel.findOne({
@@ -38,7 +35,7 @@ email
 
 if(existing){
 
-return res.status(400).json({
+return res.status(400).send({
 
 message:
 "User already exists"
@@ -47,13 +44,11 @@ message:
 
 }
 
-
 const hashed=
 await bcrypt.hash(
 password,
 10
 );
-
 
 await UserModel.create({
 
@@ -61,10 +56,10 @@ username,
 email,
 password:hashed,
 profilePic,
-isDisabled:false
+isDisabled:false,
+role:"user"
 
 });
-
 
 res.send({
 
@@ -92,7 +87,7 @@ message:
 );
 
 
-// ================= LOGIN =================
+// LOGIN
 
 userApp.post(
 "/login",
@@ -100,7 +95,7 @@ async(req,res)=>{
 
 try{
 
-const {
+const{
 email,
 password
 }=req.body;
@@ -110,7 +105,8 @@ password
 
 if(
 
-email===ADMIN_EMAIL &&
+email===ADMIN_EMAIL
+&&
 password===ADMIN_PASSWORD
 
 ){
@@ -119,7 +115,7 @@ const token=
 jwt.sign(
 
 {
-admin:true
+role:"admin"
 },
 
 process.env.SECRET_KEY,
@@ -130,7 +126,6 @@ expiresIn:"1d"
 
 );
 
-
 return res.send({
 
 message:
@@ -140,14 +135,17 @@ token,
 
 user:{
 
-email:
-ADMIN_EMAIL,
+username:"Admin",
 
-username:
-"Admin",
+email:ADMIN_EMAIL,
 
 profilePic:"",
-admin:true
+
+role:"admin",
+
+admin:true,
+
+isDisabled:false
 
 }
 
@@ -165,7 +163,6 @@ email
 
 });
 
-
 if(!user){
 
 return res.status(404).send({
@@ -178,9 +175,7 @@ message:
 }
 
 
-// UPDATED DISABLED CHECK
-
-if(user?.isDisabled===true){
+if(user.isDisabled){
 
 return res.status(403).send({
 
@@ -199,7 +194,6 @@ password,
 user.password
 
 );
-
 
 if(!matched){
 
@@ -240,17 +234,15 @@ user:{
 
 _id:user._id,
 
-username:
-user.username,
+username:user.username,
 
-email:
-user.email,
+email:user.email,
 
-profilePic:
-user.profilePic || "",
+profilePic:user.profilePic,
 
-isDisabled:
-user.isDisabled,
+role:user.role || "user",
+
+isDisabled:user.isDisabled,
 
 admin:false
 
@@ -277,10 +269,12 @@ message:
 );
 
 
-// ================= GET USERS =================
+// GET USERS (admin only)
 
 userApp.get(
 "/all-users",
+verifyToken,
+verifyAdmin,
 async(req,res)=>{
 
 try{
@@ -288,20 +282,7 @@ try{
 const users=
 await UserModel.find({});
 
-const updatedUsers=
-
-users.map(user=>({
-
-...user._doc,
-
-isDisabled:
-user.isDisabled ?? false
-
-}));
-
-console.log(updatedUsers);
-
-res.send(updatedUsers);
+res.send(users);
 
 }
 
@@ -321,36 +302,29 @@ message:"Error"
 );
 
 
-// ================= DISABLE USER =================
+// DISABLE USER (admin only)
 
 userApp.put(
 "/disable/:id",
+verifyToken,
+verifyAdmin,
 async(req,res)=>{
 
 try{
 
-const updatedUser=
 await UserModel.findByIdAndUpdate(
 
 req.params.id,
 
 {
-$set:{
 isDisabled:true
-}
-},
-
-{
-new:true
 }
 
 );
 
 res.send({
 
-message:"User Disabled",
-
-user:updatedUser
+message:"User Disabled"
 
 });
 
@@ -360,48 +334,35 @@ catch(err){
 
 console.log(err);
 
-res.status(500).send({
-
-message:"Error disabling user"
-
-});
-
 }
 
 }
 );
 
 
-// ================= ENABLE USER =================
+// ENABLE USER (admin only)
 
 userApp.put(
 "/enable/:id",
+verifyToken,
+verifyAdmin,
 async(req,res)=>{
 
 try{
 
-const updatedUser=
 await UserModel.findByIdAndUpdate(
 
 req.params.id,
 
 {
-$set:{
 isDisabled:false
-}
-},
-
-{
-new:true
 }
 
 );
 
 res.send({
 
-message:"User Enabled",
-
-user:updatedUser
+message:"User Enabled"
 
 });
 
@@ -410,12 +371,6 @@ user:updatedUser
 catch(err){
 
 console.log(err);
-
-res.status(500).send({
-
-message:"Error enabling user"
-
-});
 
 }
 

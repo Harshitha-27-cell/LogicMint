@@ -6,7 +6,7 @@ import {QuestionModel} from "../Models/QuestionModel.js";
 
 const compilerApp=exp.Router();
 
-compilerApp.post("/run",async(req,res)=>{
+const runCode=async(req,res)=>{
 
 try{
 
@@ -236,6 +236,9 @@ message:"Compilation Failed"
 
 }
 
-});
+};
+
+compilerApp.post("/run", runCode);
+compilerApp.post("/submit", runCode);
 
 export {compilerApp};

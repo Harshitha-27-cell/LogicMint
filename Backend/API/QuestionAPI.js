@@ -4,6 +4,38 @@ import Submission from "../Models/SubmissionModel.js";
 
 const questionApp = exp.Router();
 
+// GET all problems with optional filters
+questionApp.get("/", async (req, res) => {
+  try {
+    const { difficulty, language, tag, search } = req.query;
+    const filter = {};
+    if (difficulty) filter.difficulty = difficulty;
+    if (language) filter.language = language;
+    if (tag) filter.tags = { $in: [tag] };
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } }
+      ];
+    }
+    const problems = await QuestionModel.find(filter);
+    res.send(problems);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ message: "Error fetching problems" });
+  }
+});
+
+// POST create problem
+questionApp.post("/create", async (req, res) => {
+  try {
+    const problem = await QuestionModel.create(req.body);
+    res.send(problem);
+  } catch (err) {
+    res.status(500).send({ message: "Create failed" });
+  }
+});
+
 // single question
 questionApp.get(
   "/problem/:id",
@@ -30,14 +62,14 @@ questionApp.get(
         language
       });
 
+      const questionIds = questions.map((q) => q._id);
       const submissions = await Submission.find({
         userId,
-        status: "Solved"
+        status: "Solved",
+        questionId: { $in: questionIds }
       });
 
-      const solvedIds = submissions.map(
-        s => s.questionId.toString()
-      );
+      const solvedIds = submissions.map((s) => s.questionId.toString());
 
       const updated = questions.map(q => ({
         ...q._doc,
@@ -73,7 +105,12 @@ questionApp.get(
       res.send({
         questions: updated,
         progress: {
-          overall: Math.round((submissions.length / questions.length) * 100),
+          overall:
+            questions.length > 0
+              ? Math.round(
+                  (updated.filter((q) => q.solved).length / questions.length) * 100
+                )
+              : 0,
           easy: Math.round((easySolved / easyTotal) * 100),
           medium: Math.round((mediumSolved / mediumTotal) * 100),
           hard: Math.round((hardSolved / hardTotal) * 100)

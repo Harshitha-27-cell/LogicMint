@@ -41,6 +41,16 @@ ref:"User"
 released:{
 type:Boolean,
 default:false
+},
+
+participants:[{
+type:mongoose.Schema.Types.ObjectId,
+ref:"User"
+}],
+
+description:{
+type:String,
+default:""
 }
 
 });
