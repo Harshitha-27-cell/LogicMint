@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -8,10 +9,13 @@ import Practice from "./pages/Practice";
 import CoursePage from "./pages/CoursePage";
 import ProblemPage from "./pages/ProblemPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import CreateContest from "./pages/CreateContest";
+import ContestPage from "./pages/ContestPage";
+
 import Loader from "./components/Loader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
-import CreateContest from "./pages/CreateContest";
+
 function App(){
 
 return(
@@ -30,15 +34,8 @@ element={
 </Loader>
 }
 />
-{/* Conduct Contest */}
-<Route
-path="/contest"
-element={
-<AdminRoute>
-<CreateContest/>
-</AdminRoute>
-}
-/>
+
+
 {/* Login */}
 
 <Route
@@ -133,7 +130,31 @@ element={
 />
 
 
-{/* Admin Only */}
+{/* USER CONTEST PAGE */}
+
+<Route
+path="/contest-page"
+element={
+<ProtectedRoute>
+<ContestPage/>
+</ProtectedRoute>
+}
+/>
+
+
+{/* ADMIN CONDUCT CONTEST */}
+
+<Route
+path="/contest"
+element={
+<AdminRoute>
+<CreateContest/>
+</AdminRoute>
+}
+/>
+
+
+{/* ADMIN DASHBOARD */}
 
 <Route
 path="/admin"
@@ -150,7 +171,7 @@ element={
 
 </BrowserRouter>
 
-)
+);
 
 }
 

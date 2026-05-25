@@ -3,14 +3,14 @@ import { FaSignOutAlt } from "react-icons/fa";
 
 function AdminNavbar(){
 
-const navigate = useNavigate();
+const navigate=useNavigate();
 
-const user =
+const user=
 JSON.parse(
 localStorage.getItem("user")
 );
 
-const logout = ()=>{
+const logout=()=>{
 
 localStorage.removeItem("user");
 localStorage.removeItem("token");
@@ -22,10 +22,12 @@ navigate("/login");
 return(
 
 <div
+
 className="
 
 bg-white
 shadow-xl
+
 px-8
 py-4
 
@@ -37,6 +39,7 @@ border-b
 border-[#d6c1af]
 
 "
+
 >
 
 {/* LEFT */}
@@ -50,6 +53,7 @@ className="
 text-3xl
 font-bold
 text-[#8b5e3c]
+
 cursor-pointer
 
 "
@@ -67,8 +71,6 @@ LogicMint Admin
 
 <div className="flex gap-8">
 
-{/* HOME */}
-
 <button
 
 onClick={()=>
@@ -79,7 +81,8 @@ className="
 
 font-semibold
 hover:text-[#8b5e3c]
-cursor-pointer
+
+transition
 
 "
 
@@ -90,8 +93,6 @@ Home
 </button>
 
 
-{/* CONTEST */}
-
 <button
 
 onClick={()=>
@@ -100,9 +101,10 @@ navigate("/contest")
 
 className="
 
-font-bold
+font-semibold
 hover:text-[#8b5e3c]
-cursor-pointer
+
+transition
 
 "
 
@@ -121,6 +123,12 @@ Contest
 
 <div className="flex items-center gap-5">
 
+<div className="font-medium">
+
+{user?.username || "Admin"}
+
+</div>
+
 <button
 
 onClick={logout}
@@ -135,11 +143,11 @@ py-3
 
 rounded-xl
 
-cursor-pointer
-
 flex
 items-center
 gap-2
+
+cursor-pointer
 
 hover:scale-105
 transition
@@ -153,32 +161,6 @@ transition
 Logout
 
 </button>
-
-
-<img
-
-src={
-user?.profilePic ||
-"https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-}
-
-alt="profile"
-
-className="
-
-w-12
-h-12
-
-rounded-full
-
-border-[3px]
-border-[#8b5e3c]
-
-object-cover
-
-"
-
-/>
 
 </div>
 

@@ -1,42 +1,73 @@
 import { useEffect,useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
-import {
+
+import{
+
 FaUsers,
 FaTrophy,
 FaSearch
+
 }
+
 from "react-icons/fa";
 
 function AdminDashboard(){
 
+const navigate=useNavigate();
+
 const [users,setUsers]=useState([]);
+const [attempts,setAttempts]=useState([]);
+const [contests,setContests]=useState([]);
+
 const [loading,setLoading]=useState(true);
 
 useEffect(()=>{
 
-fetchUsers();
+fetchData();
 
 },[]);
 
-const fetchUsers=async()=>{
+
+const fetchData=async()=>{
 
 try{
 
-const res=await axios.get(
+const usersRes=
+await axios.get(
 
 `${import.meta.env.VITE_API_URL}/user-api/all-users`
 
 );
 
-console.log(res.data);
+const attemptsRes=
+await axios.get(
+
+`${import.meta.env.VITE_API_URL}/contest-api/attempts`
+
+);
+
+const contestsRes=
+await axios.get(
+
+`${import.meta.env.VITE_API_URL}/contest-api/active`
+
+);
 
 setUsers(
-res.data || []
+usersRes.data || []
+);
+
+setAttempts(
+attemptsRes.data || []
+);
+
+setContests(
+contestsRes.data || []
 );
 
 }
-
 catch(err){
 
 console.log(err);
@@ -60,7 +91,7 @@ await axios.put(
 
 );
 
-fetchUsers();
+fetchData();
 
 };
 
@@ -73,9 +104,10 @@ await axios.put(
 
 );
 
-fetchUsers();
+fetchData();
 
 };
+
 
 return(
 
@@ -85,15 +117,9 @@ return(
 
 <div className="p-8">
 
-{/* TOP */}
-
-<div className="flex justify-between items-start">
-
-<div>
-
 <h1 className="text-5xl font-bold text-[#8b5e3c]">
 
-Welcome back, Admin
+Welcome back Admin
 
 </h1>
 
@@ -103,15 +129,9 @@ Overview of your platform
 
 </p>
 
-</div>
-
-</div>
-
-
-
-{/* STATS */}
 
 <div className="grid grid-cols-3 gap-6 mt-10">
+
 
 <div className="bg-white rounded-[30px] p-6 shadow-lg">
 
@@ -154,7 +174,7 @@ Overview of your platform
 
 <h1 className="text-3xl font-bold">
 
-0
+{contests.length}
 
 </h1>
 
@@ -167,54 +187,25 @@ Overview of your platform
 </div>
 
 
-<div className="
-
-bg-gradient-to-r
-from-[#8b5e3c]
-to-[#b47b52]
-
-rounded-[30px]
-p-6
-
-text-white
-
-shadow-xl
-
-">
-
-<h1 className="text-3xl font-bold">
-
-Conduct Contests
-
-</h1>
-
-<p className="mt-3">
-
-Create coding contests
-
-</p>
+<div className="bg-white rounded-[30px] p-6 shadow-lg">
 
 <button
 
+onClick={()=>
+navigate("/contest")
+}
+
 className="
 
-mt-6
-
-bg-white
-text-[#8b5e3c]
+bg-[#8b5e3c]
+text-white
 
 px-6
 py-3
 
 rounded-xl
 
-font-bold
-
-cursor-pointer
-
-hover:scale-105
-
-transition
+w-full
 
 "
 
@@ -229,78 +220,105 @@ Conduct Contest
 </div>
 
 
+<div className="bg-white rounded-[30px] p-6 mt-10">
 
-{/* USERS TABLE */}
+<h1 className="text-2xl font-bold mb-5">
 
-<div className="
+Contest Attempts
 
-bg-white
+</h1>
 
-rounded-[30px]
+<table className="w-full">
 
-shadow-xl
+<thead>
 
-mt-10
+<tr className="border-b">
 
-p-6
+<th>User</th>
 
-">
+<th>Attempt Time</th>
 
-<div className="flex justify-between mb-6">
+<th>Solved</th>
 
-<h1 className="text-2xl font-bold">
+<th>Marks</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{
+
+attempts.map((attempt)=>(
+
+<tr
+key={attempt._id}
+className="border-b text-center"
+>
+
+<td className="py-4">
+
+{attempt.username}
+
+</td>
+
+<td>
+
+{
+
+new Date(
+attempt.attemptedAt
+)
+
+.toLocaleString()
+
+}
+
+</td>
+
+<td>
+
+{attempt.solvedQuestions}
+
+</td>
+
+<td>
+
+{attempt.totalMarks}
+
+</td>
+
+</tr>
+
+))
+
+}
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<div className="bg-white rounded-[30px] p-6 shadow-xl mt-10">
+
+<h1 className="text-2xl font-bold mb-5">
 
 Enable / Disable Users
 
 </h1>
 
-<div className="
-
-bg-[#f3f3f3]
-
-px-4
-py-2
-
-rounded-xl
-
-flex
-items-center
-gap-3
-
-">
-
-<FaSearch/>
-
-<input
-
-placeholder="Search users"
-
-className="bg-transparent outline-none"
-
-/>
-
-</div>
-
-</div>
-
-
 {
 
-loading ?
+loading
+
+?
 
 <div>
 
 Loading...
-
-</div>
-
-:
-
-users.length===0 ?
-
-<div className="text-red-500">
-
-No Users Found
 
 </div>
 
@@ -312,29 +330,10 @@ No Users Found
 
 <tr className="border-b">
 
-<th className="py-4">
-
-User
-
-</th>
-
-<th>
-
-Email
-
-</th>
-
-<th>
-
-Status
-
-</th>
-
-<th>
-
-Action
-
-</th>
+<th>User</th>
+<th>Email</th>
+<th>Status</th>
+<th>Action</th>
 
 </tr>
 
@@ -344,14 +343,14 @@ Action
 
 {
 
-users.map((user,index)=>(
+users.map(user=>(
 
 <tr
 key={user._id}
 className="border-b text-center"
 >
 
-<td className="py-5">
+<td className="py-4">
 
 {user.username}
 
@@ -364,26 +363,6 @@ className="border-b text-center"
 </td>
 
 <td>
-
-<span
-
-className={`
-
-px-4
-py-2
-rounded-full
-
-${
-user.isDisabled
-?
-"bg-red-100 text-red-500"
-:
-"bg-green-100 text-green-500"
-}
-
-`}
-
->
 
 {
 
@@ -399,8 +378,6 @@ user.isDisabled
 
 }
 
-</span>
-
 </td>
 
 <td>
@@ -410,9 +387,13 @@ user.isDisabled
 onClick={()=>{
 
 user.isDisabled
+
 ?
+
 enableUser(user._id)
+
 :
+
 disableUser(user._id)
 
 }}
@@ -423,16 +404,10 @@ bg-[#8b5e3c]
 
 text-white
 
-px-5
+px-4
 py-2
 
 rounded-xl
-
-cursor-pointer
-
-hover:scale-105
-
-transition
 
 "
 

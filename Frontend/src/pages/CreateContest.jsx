@@ -1,31 +1,117 @@
-import { useState } from "react";
-import AdminNavbar from "../components/AdminNavbar";
+import {useState} from "react";
 import axios from "axios";
+import AdminNavbar from "../components/AdminNavbar";
+import {FaTrophy} from "react-icons/fa";
 
 function CreateContest(){
 
 const [contest,setContest]=useState({
 
-questions:10,
-testcases:5,
+title:"",
+
 duration:"02:00:00",
-startDate:"",
-startTime:"",
-endDate:"",
-endTime:""
+
+questionsCount:1,
+
+questions:[]
+});
+
+
+const createQuestions=(count)=>{
+
+const questionArr=[];
+
+for(let i=0;i<count;i++){
+
+questionArr.push({
+
+title:"",
+description:"",
+marks:100,
+
+testCases:[
+{
+input:"",
+output:""
+}
+]
 
 });
 
-const handleChange=(e)=>{
+}
 
 setContest({
 
 ...contest,
-[e.target.name]:e.target.value
+
+questionsCount:count,
+questions:questionArr
 
 });
 
 };
+
+
+const updateQuestion=(index,field,value)=>{
+
+const updated=[...contest.questions];
+
+updated[index][field]=value;
+
+setContest({
+
+...contest,
+questions:updated
+
+});
+
+};
+
+
+const addTestCase=(qIndex)=>{
+
+const updated=[...contest.questions];
+
+updated[qIndex].testCases.push({
+
+input:"",
+output:""
+
+});
+
+setContest({
+
+...contest,
+questions:updated
+
+});
+
+};
+
+
+const updateTestCase=(
+
+qIndex,
+tIndex,
+field,
+value
+
+)=>{
+
+const updated=[...contest.questions];
+
+updated[qIndex]
+.testCases[tIndex][field]=value;
+
+setContest({
+
+...contest,
+questions:updated
+
+});
+
+};
+
 
 const releaseContest=async()=>{
 
@@ -33,12 +119,15 @@ try{
 
 await axios.post(
 
-`${import.meta.env.VITE_API_URL}/contest/create`,
+`${import.meta.env.VITE_API_URL}/contest-api/create`,
+
 contest
 
 );
 
-alert("Contest Released Successfully");
+alert(
+"Contest Released"
+);
 
 }
 catch(err){
@@ -49,205 +138,270 @@ console.log(err);
 
 };
 
+
 return(
 
 <div className="min-h-screen bg-[#f6f2ed]">
 
 <AdminNavbar/>
 
-<div className="p-10">
+<div className="p-8">
 
-<h1 className="text-4xl font-bold text-[#8b5e3c]">
+<div className="bg-gradient-to-r from-[#5d3820] to-[#8b5e3c] rounded-[30px] p-8 text-white">
+
+<div className="flex gap-3 items-center">
+
+<FaTrophy size={35}/>
+
+<h1 className="text-4xl font-bold">
 
 Conduct Contest
 
 </h1>
 
-<p className="text-gray-500 mt-2">
+</div>
 
-Set up your contest by selecting questions, testcases and schedule
+<p className="mt-2">
+
+Create coding contests
 
 </p>
 
+</div>
 
-<div className="bg-white rounded-[25px] p-8 shadow-lg mt-8">
 
-<div className="grid grid-cols-2 gap-10">
+<div className="bg-white rounded-[30px] p-8 mt-8 shadow-xl">
 
-<div>
+<input
 
-<h2 className="font-bold mb-3">
+placeholder="Contest Title"
 
-Select Questions
+className="w-full border p-4 rounded-xl"
 
-</h2>
+onChange={(e)=>{
+
+setContest({
+
+...contest,
+title:e.target.value
+
+});
+
+}}
+
+/>
+
 
 <select
-name="questions"
-value={contest.questions}
-onChange={handleChange}
-className="w-full p-4 rounded-xl border"
+
+className="w-full border p-4 rounded-xl mt-5"
+
+onChange={(e)=>{
+
+createQuestions(
+Number(e.target.value)
+)
+
+}}
+
 >
 
-<option>5</option>
-<option>10</option>
-<option>15</option>
-<option>20</option>
+{
+
+[1,2,3,4,5,6,7,8,9,10]
+
+.map(num=>(
+
+<option
+key={num}
+value={num}
+>
+
+{num}
+
+</option>
+
+))
+
+}
 
 </select>
 
-</div>
 
+{
 
-<div>
+contest.questions.map(
 
-<h2 className="font-bold mb-3">
+(q,qIndex)=>(
 
-Select Testcases
+<div
 
-</h2>
+key={qIndex}
 
-<select
-name="testcases"
-value={contest.testcases}
-onChange={handleChange}
-className="w-full p-4 rounded-xl border"
+className="border rounded-xl p-5 mt-6"
+
 >
 
-<option>2</option>
-<option>5</option>
-<option>10</option>
+<h2 className="font-bold">
 
-</select>
-
-</div>
-
-
-<div>
-
-<h2 className="font-bold mb-3">
-
-Duration
+Question {qIndex+1}
 
 </h2>
 
-<select
-name="duration"
-value={contest.duration}
-onChange={handleChange}
-className="w-full p-4 rounded-xl border"
+<input
+
+placeholder="Question Title"
+
+className="w-full border p-3 rounded mt-3"
+
+onChange={(e)=>{
+
+updateQuestion(
+
+qIndex,
+"title",
+e.target.value
+
+)
+
+}}
+
+/>
+
+
+<textarea
+
+placeholder="Description"
+
+className="w-full border p-3 rounded mt-3"
+
+onChange={(e)=>{
+
+updateQuestion(
+
+qIndex,
+"description",
+e.target.value
+
+)
+
+}}
+
+/>
+
+
+<input
+
+placeholder="Marks"
+
+className="w-full border p-3 rounded mt-3"
+
+onChange={(e)=>{
+
+updateQuestion(
+
+qIndex,
+"marks",
+e.target.value
+
+)
+
+}}
+
+/>
+
+
+{
+
+q.testCases.map(
+
+(test,tIndex)=>(
+
+<div
+key={tIndex}
+className="grid grid-cols-2 gap-4 mt-4"
 >
 
-<option>01:00:00</option>
-<option>02:00:00</option>
-<option>03:00:00</option>
-
-</select>
-
-</div>
-
-
-<div>
-
-<h2 className="font-bold mb-3">
-
-Schedule Contest
-
-</h2>
-
 <input
-type="date"
-name="startDate"
-onChange={handleChange}
-className="w-full p-3 border rounded-xl mb-3"
+
+placeholder="Input"
+
+className="border p-3 rounded"
+
+onChange={(e)=>{
+
+updateTestCase(
+
+qIndex,
+tIndex,
+"input",
+e.target.value
+
+)
+
+}}
+
 />
 
 <input
-type="time"
-name="startTime"
-onChange={handleChange}
-className="w-full p-3 border rounded-xl"
-/>
 
-<input
-type="date"
-name="endDate"
-onChange={handleChange}
-className="w-full p-3 border rounded-xl mt-3"
-/>
+placeholder="Output"
 
-<input
-type="time"
-name="endTime"
-onChange={handleChange}
-className="w-full p-3 border rounded-xl mt-3"
+className="border p-3 rounded"
+
+onChange={(e)=>{
+
+updateTestCase(
+
+qIndex,
+tIndex,
+"output",
+e.target.value
+
+)
+
+}}
+
 />
 
 </div>
 
-</div>
+)
+
+)
+
+}
+
+
+<button
+
+onClick={()=>
+
+addTestCase(qIndex)
+
+}
+
+className="bg-[#8b5e3c] text-white px-4 py-2 rounded-xl mt-4"
+
+>
+
++ Add Testcase
+
+</button>
 
 </div>
 
+)
 
-<div className="bg-white rounded-[25px] p-8 shadow-lg mt-8">
+)
 
-<h1 className="font-bold text-2xl mb-5">
-
-Contest Summary
-
-</h1>
-
-<div className="grid grid-cols-4 gap-5">
-
-<div>
-Questions
-<h2>{contest.questions}</h2>
-</div>
-
-<div>
-Testcases
-<h2>{contest.testcases}</h2>
-</div>
-
-<div>
-Duration
-<h2>{contest.duration}</h2>
-</div>
-
-<div>
-Active From
-<h2>
-
-{contest.startDate}
-
-{" "}
-
-{contest.startTime}
-
-</h2>
-
-</div>
-
-</div>
+}
 
 <button
 
 onClick={releaseContest}
 
-className="
-
-mt-10
-bg-[#8b5e3c]
-text-white
-px-8
-py-4
-rounded-xl
-cursor-pointer
-hover:scale-105
-transition
-
-"
+className="bg-[#8b5e3c] text-white px-10 py-4 rounded-xl mt-8"
 
 >
 

@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
 body{
-  font-family: Arial, Helvetica, sans-serif;
+
+font-family:Arial,Helvetica,sans-serif;
+
+background:#f6f2ed;
+
+margin:0;
+padding:0;
+
+}
+
+::-webkit-scrollbar{
+
+width:8px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#8b5e3c;
+border-radius:20px;
+
 }

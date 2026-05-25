@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 
-const contestSchema=
+const contestSchema=new mongoose.Schema({
 
-new mongoose.Schema({
-
-title:String,
+title:{
+type:String,
+required:true
+},
 
 description:String,
 
@@ -12,46 +13,39 @@ startTime:Date,
 
 endTime:Date,
 
-released:{
-type:Boolean,
-default:false
-},
+duration:Number,
 
 questions:[
 
 {
 
-title:String,
+questionId:{
+type:mongoose.Schema.Types.ObjectId,
+ref:"Question"
+},
 
-description:String,
-
-explanation:String,
-
-expectedOutput:String,
-
-visibleTestCases:[{
-
-input:String,
-output:String
-
-}],
-
-hiddenTestCases:[{
-
-input:String,
-output:String
-
-}]
+marks:{
+type:Number,
+default:100
+}
 
 }
 
-]
+],
+
+createdBy:{
+type:mongoose.Schema.Types.ObjectId,
+ref:"User"
+},
+
+released:{
+type:Boolean,
+default:false
+}
 
 });
 
 export default mongoose.model(
-
 "Contest",
 contestSchema
-
 );

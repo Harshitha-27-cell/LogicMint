@@ -27,10 +27,10 @@ navigate("/login");
 return(
 
 <div
+
 className="
 
 bg-white
-
 shadow-lg
 
 px-8
@@ -47,6 +47,7 @@ items-center
 {/* LEFT */}
 
 <div
+
 className="
 
 flex
@@ -58,12 +59,18 @@ gap-10
 >
 
 <h1
+
+onClick={()=>
+navigate("/home")
+}
+
 className="
 
 text-3xl
 font-bold
-
 text-[#8b5e3c]
+
+cursor-pointer
 
 "
 
@@ -75,6 +82,7 @@ LogicMint
 
 
 <div
+
 className="
 
 flex
@@ -113,6 +121,16 @@ Compiler
 
 </Link>
 
+
+<Link
+to="/contest-page"
+className="hover:text-[#8b5e3c]"
+>
+
+Contest
+
+</Link>
+
 {
 user?.role==="admin"
 
@@ -137,6 +155,7 @@ Admin
 {/* RIGHT */}
 
 <div
+
 className="
 
 flex

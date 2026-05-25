@@ -7,8 +7,8 @@ import { userApp } from "./API/UserAPI.js";
 import { compilerApp } from "./API/CompilerAPI.js";
 import {questionApp}
 from "./API/QuestionAPI.js";
-
-
+import {contestApp}
+from "./API/ContestAPI.js";
 dotenv.config();
 
 const app=exp();
@@ -109,7 +109,10 @@ message:"Invalid path"
 });
 
 });
-
+app.use(
+"/contest-api",
+contestApp
+);
 
 // Server
 
