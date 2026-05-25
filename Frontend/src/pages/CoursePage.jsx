@@ -1,587 +1,532 @@
-import { useEffect, useState } from "react";
+import { useEffect,useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import {useParams,useNavigate} from "react-router-dom";
 import Navbar from "../components/Navbar";
 import practicebg from "../assets/Practicebg.png";
 
-import {
-  FaClipboardList,
-  FaCheckCircle,
-  FaChartLine,
-  FaCode,
-} from "react-icons/fa";
+import{
+FaClipboardList,
+FaCheckCircle,
+FaChartLine,
+FaCode
+}
+from "react-icons/fa";
 
-function CoursePage() {
-  const { language } = useParams();
+function CoursePage(){
 
-  const navigate = useNavigate();
+const {language}=useParams();
 
-  const [questions, setQuestions] = useState([]);
+const navigate=useNavigate();
 
-  useEffect(() => {
-    fetchQuestions();
-  }, [language]);
+const [questions,setQuestions]=useState([]);
 
-  const fetchQuestions = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/question-api/${language}`
-      );
+const normalizedLanguage={
 
-      setQuestions(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+"C++":"cpp",
+"JavaScript":"javascript",
+"Python":"python",
+"Java":"java",
+"C":"c"
 
-  const solved =
-    questions.filter((q) => q.solved).length;
+}[language]||language.toLowerCase();
 
-  const progress =
-    questions.length > 0
-      ? Math.floor(
-          (solved / questions.length) * 100
-        )
-      : 0;
+useEffect(()=>{
 
-  const easySolved =
-    questions.filter(
-      (q) =>
-        q.solved &&
-        q.difficulty === "Easy"
-    ).length;
+fetchQuestions();
 
-  const mediumSolved =
-    questions.filter(
-      (q) =>
-        q.solved &&
-        q.difficulty === "Medium"
-    ).length;
+},[language]);
 
-  const hardSolved =
-    questions.filter(
-      (q) =>
-        q.solved &&
-        q.difficulty === "Hard"
-    ).length;
+const fetchQuestions=async()=>{
 
-  const easyTotal =
-    questions.filter(
-      (q) => q.difficulty === "Easy"
-    ).length;
+try{
 
-  const mediumTotal =
-    questions.filter(
-      (q) => q.difficulty === "Medium"
-    ).length;
+const res=await axios.get(
 
-  const hardTotal =
-    questions.filter(
-      (q) => q.difficulty === "Hard"
-    ).length;
+`${import.meta.env.VITE_API_URL}/question-api/${normalizedLanguage}`
 
-  return (
-    <div
-      className="
-      min-h-screen
-      bg-[#f6f2ed]
-      "
-    >
-      <Navbar />
+);
 
-      <div
-        className="
-        flex
-        gap-6
-        p-6
-        "
-      >
-        {/* SIDEBAR */}
+setQuestions(
+res.data || []
+);
 
-        <div
-          className="
-          w-[320px]
-          bg-[#111]
-          rounded-[30px]
-          p-6
-          text-white
-          shadow-xl
-          "
-        >
-          {/* OVERALL PROGRESS */}
+}
+catch(err){
 
-          <div
-            className="
-            bg-[#1f1f1f]
-            rounded-[30px]
-            p-6
-            mb-6
-            "
-          >
-            <h1
-              className="
-              text-2xl
-              font-bold
-              mb-5
-              "
-            >
-              Overall Progress
-            </h1>
+console.log(err);
 
-            <div
-              className="
-              flex
-              justify-center
-              "
-            >
-              <div
-                className="
-                w-36
-                h-36
-                rounded-full
-                border-[10px]
-                border-[#8b5e3c]
-                flex
-                justify-center
-                items-center
-                text-3xl
-                font-bold
-                "
-              >
-                {progress}%
-              </div>
-            </div>
-          </div>
+setQuestions([]);
 
-          {/* SOLVED TRACKER */}
-
-          <div className="mb-8">
-
-            <h1
-              className="
-              text-lg
-              font-bold
-              mb-4
-              "
-            >
-              Solved Levels
-            </h1>
-
-            <div className="space-y-4">
-
-              {/* EASY */}
-
-              <div
-                className="
-                bg-[#1b1b1b]
-                p-4
-                rounded-2xl
-                "
-              >
-                <div className="flex justify-between">
-                  <span className="text-green-400">
-                    Easy
-                  </span>
-
-                  <span>
-                    {easySolved}/{easyTotal}
-                  </span>
-                </div>
-
-                <div
-                  className="
-                  mt-2
-                  bg-[#333]
-                  h-2
-                  rounded-full
-                  "
-                >
-                  <div
-                    style={{
-                      width: `${
-                        easyTotal === 0
-                          ? 0
-                          : (easySolved /
-                              easyTotal) *
-                            100
-                      }%`,
-                    }}
-                    className="
-                    h-full
-                    bg-green-400
-                    rounded-full
-                    "
-                  ></div>
-                </div>
-              </div>
-
-              {/* MEDIUM */}
-
-              <div
-                className="
-                bg-[#1b1b1b]
-                p-4
-                rounded-2xl
-                "
-              >
-                <div className="flex justify-between">
-                  <span className="text-orange-400">
-                    Medium
-                  </span>
-
-                  <span>
-                    {mediumSolved}/
-                    {mediumTotal}
-                  </span>
-                </div>
-
-                <div
-                  className="
-                  mt-2
-                  bg-[#333]
-                  h-2
-                  rounded-full
-                  "
-                >
-                  <div
-                    style={{
-                      width: `${
-                        mediumTotal === 0
-                          ? 0
-                          : (mediumSolved /
-                              mediumTotal) *
-                            100
-                      }%`,
-                    }}
-                    className="
-                    h-full
-                    bg-orange-400
-                    rounded-full
-                    "
-                  ></div>
-                </div>
-              </div>
-
-              {/* HARD */}
-
-              <div
-                className="
-                bg-[#1b1b1b]
-                p-4
-                rounded-2xl
-                "
-              >
-                <div className="flex justify-between">
-                  <span className="text-red-400">
-                    Hard
-                  </span>
-
-                  <span>
-                    {hardSolved}/{hardTotal}
-                  </span>
-                </div>
-
-                <div
-                  className="
-                  mt-2
-                  bg-[#333]
-                  h-2
-                  rounded-full
-                  "
-                >
-                  <div
-                    style={{
-                      width: `${
-                        hardTotal === 0
-                          ? 0
-                          : (hardSolved /
-                              hardTotal) *
-                            100
-                      }%`,
-                    }}
-                    className="
-                    h-full
-                    bg-red-400
-                    rounded-full
-                    "
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* QUESTIONS */}
-
-          <h1
-            className="
-            text-xl
-            font-bold
-            mb-5
-            "
-          >
-            Questions
-          </h1>
-
-          <div className="space-y-3">
-            {questions.map((q) => (
-              <div
-                key={q._id}
-                className="
-                bg-[#1d1d1d]
-                rounded-xl
-                px-4
-                py-3
-                hover:bg-[#8b5e3c]
-                transition
-                "
-              >
-                <p className="truncate">
-                  {q.title}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* RIGHT SIDE */}
-
-        <div className="flex-1">
-
-          {/* HERO */}
-
-          <div
-            className="
-            rounded-[35px]
-            overflow-hidden
-            relative
-            h-[230px]
-            shadow-2xl
-            "
-            style={{
-              backgroundImage: `url(${practicebg})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div
-              className="
-              absolute
-              inset-0
-              bg-black/50
-              "
-            ></div>
-
-            <div
-              className="
-              relative
-              z-10
-              p-10
-              text-white
-              "
-            >
-              <h1
-                className="
-                text-6xl
-                font-bold
-                "
-              >
-                {language === "cpp"
-                  ? "C++"
-                  : language.toUpperCase()}
-              </h1>
-
-              <p className="mt-4 text-xl">
-                Master coding challenges
-              </p>
-            </div>
-          </div>
-
-          {/* SMALLER STATS */}
-
-          <div
-            className="
-            grid
-            grid-cols-4
-            gap-4
-            my-6
-            "
-          >
-            {[
-              {
-                icon: (
-                  <FaClipboardList size={24} />
-                ),
-                value: questions.length,
-                title: "Questions",
-              },
-              {
-                icon: (
-                  <FaCheckCircle size={24} />
-                ),
-                value: solved,
-                title: "Solved",
-              },
-              {
-                icon: (
-                  <FaChartLine size={24} />
-                ),
-                value: `${progress}%`,
-                title: "Progress",
-              },
-              {
-                icon: (
-                  <FaCode size={24} />
-                ),
-                value: "10",
-                title: "Hidden Cases",
-              },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="
-                bg-gradient-to-br
-                from-[#5d3820]
-                to-[#8b5e3c]
-                rounded-[22px]
-                p-5
-                text-white
-                shadow-[0_0_20px_rgba(139,94,60,0.4)]
-                hover:scale-105
-                hover:shadow-[0_0_30px_rgba(139,94,60,0.7)]
-                transition-all
-                duration-500
-                "
-              >
-                <div className="mb-3">
-                  {item.icon}
-                </div>
-
-                <h1
-                  className="
-                  text-3xl
-                  font-bold
-                  "
-                >
-                  {item.value}
-                </h1>
-
-                <p className="text-sm mt-1">
-                  {item.title}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* QUESTION CARDS */}
-
-          <div className="space-y-4">
-
-            {questions.map(
-              (q, index) => (
-                <div
-                  key={q._id}
-                  className="
-                  bg-white
-                  rounded-[25px]
-                  p-6
-                  shadow-lg
-                  hover:scale-[1.02]
-                  transition
-                  "
-                >
-                  <div
-                    className="
-                    flex
-                    justify-between
-                    items-center
-                    "
-                  >
-                    <div className="flex gap-5">
-
-                      <div
-                        className="
-                        w-12
-                        h-12
-                        rounded-xl
-                        bg-[#8b5e3c]
-                        text-white
-                        font-bold
-                        flex
-                        justify-center
-                        items-center
-                        "
-                      >
-                        {index + 1}
-                      </div>
-
-                      <h1
-                        className="
-                        text-xl
-                        font-bold
-                        "
-                      >
-                        {q.title}
-                      </h1>
-                    </div>
-
-                    <div className="flex gap-4 items-center">
-
-                      <span
-                        className={`
-                        px-4
-                        py-2
-                        rounded-xl
-                        border
-                        ${
-                          q.difficulty ===
-                          "Easy"
-                            ? "border-green-500 text-green-500"
-                            : q.difficulty ===
-                              "Medium"
-                            ? "border-orange-500 text-orange-500"
-                            : "border-red-500 text-red-500"
-                        }
-                        `}
-                      >
-                        {q.difficulty}
-                      </span>
-
-                      <button
-onClick={()=>
-navigate(`/problem/${q._id}`)
 }
 
-className="
-bg-[#8b5e3c]
-text-white
-px-5
-py-2
-rounded-xl
+};
+
+const filteredQuestions=
+Array.isArray(questions)
+?
+questions
+:
+[];
+
+const totalQuestions=
+filteredQuestions.length;
+
+const solvedQuestions=
+filteredQuestions.filter(
+q=>q.solvedBy?.length>0
+).length;
+
+const progress=
+
+totalQuestions===0
+?
+
+0
+:
+
+Math.round(
+(solvedQuestions/
+totalQuestions)*100
+);
+
+const easyTotal=
+filteredQuestions.filter(
+q=>q.difficulty==="Easy"
+).length;
+
+const mediumTotal=
+filteredQuestions.filter(
+q=>q.difficulty==="Medium"
+).length;
+
+const hardTotal=
+filteredQuestions.filter(
+q=>q.difficulty==="Hard"
+).length;
+
+const easySolved=
+filteredQuestions.filter(
+q=>
+q.difficulty==="Easy"
+&&
+q.solvedBy?.length>0
+).length;
+
+const mediumSolved=
+filteredQuestions.filter(
+q=>
+q.difficulty==="Medium"
+&&
+q.solvedBy?.length>0
+).length;
+
+const hardSolved=
+filteredQuestions.filter(
+q=>
+q.difficulty==="Hard"
+&&
+q.solvedBy?.length>0
+).length;
+
+return(
+
+<div className="min-h-screen bg-[#f6f2ed]">
+
+<Navbar/>
+
+<div className="flex gap-6 p-6">
+
+{/* LEFT */}
+
+<div className="w-[320px] bg-black rounded-[30px] p-6 text-white">
+
+<div className="bg-[#181818] rounded-[25px] p-6">
+
+<h1 className="text-2xl font-bold mb-4">
+
+Overall Progress
+
+</h1>
+
+<div className="flex justify-center">
+
+<div className="
+
+w-36
+h-36
+rounded-full
+
+border-[10px]
+border-[#8b5e3c]
+
+flex
+items-center
+justify-center
+
+text-3xl
 font-bold
+
+">
+
+{progress}%
+
+</div>
+
+</div>
+
+</div>
+
+<div className="mt-8">
+
+<h1 className="font-bold text-2xl">
+
+Solved Levels
+
+</h1>
+
+<div className="space-y-4 mt-5">
+
+<div className="bg-[#1d1d1d] p-4 rounded-xl">
+
+<div className="flex justify-between">
+
+<span className="text-green-400">
+
+Easy
+
+</span>
+
+<span>
+
+{easySolved}/{easyTotal}
+
+</span>
+
+</div>
+
+</div>
+
+<div className="bg-[#1d1d1d] p-4 rounded-xl">
+
+<div className="flex justify-between">
+
+<span className="text-orange-400">
+
+Medium
+
+</span>
+
+<span>
+
+{mediumSolved}/{mediumTotal}
+
+</span>
+
+</div>
+
+</div>
+
+<div className="bg-[#1d1d1d] p-4 rounded-xl">
+
+<div className="flex justify-between">
+
+<span className="text-red-400">
+
+Hard
+
+</span>
+
+<span>
+
+{hardSolved}/{hardTotal}
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<h1 className="text-2xl mt-10 mb-4 font-bold">
+
+Questions
+
+</h1>
+
+<div className="space-y-4">
+
+{
+filteredQuestions.map((q,index)=>(
+
+<div
+key={q._id}
+className="
+
+bg-[#1d1d1d]
+p-5
+rounded-xl
 cursor-pointer
+hover:bg-[#2a2a2a]
+hover:scale-110
+transition-all
+"
+>
+
+{index+1}. {q.title}
+
+</div>
+
+))
+}
+
+</div>
+
+</div>
+
+{/* RIGHT */}
+
+<div className="flex-1">
+
+<div
+className="
+
+h-[220px]
+rounded-[30px]
+relative
+overflow-hidden
+"
+style={{
+backgroundImage:`url(${practicebg})`,
+backgroundSize:"cover",
+backgroundPosition:"center"
+}}
+>
+
+<div className="absolute inset-0 bg-black/50"/>
+
+<div className="relative z-10 p-10 text-white">
+
+<h1 className="text-6xl font-bold">
+
+{language}
+
+</h1>
+
+<p className="mt-3">
+
+Master coding challenges
+
+</p>
+
+</div>
+
+</div>
+
+<div className="grid grid-cols-4 gap-5 mt-6">
+
+{
+[
+{
+icon:<FaClipboardList/>,
+title:"Questions",
+value:totalQuestions
+},
+
+{
+icon:<FaCheckCircle/>,
+title:"Solved",
+value:solvedQuestions
+},
+
+{
+icon:<FaChartLine/>,
+title:"Progress",
+value:`${progress}%`
+},
+
+{
+icon:<FaCode/>,
+title:"Hidden Cases",
+value:"10"
+}
+
+].map((card,index)=>(
+
+<div
+key={index}
+className="
+
+bg-gradient-to-br
+from-[#5d3820]
+to-[#8b5e3c]
+p-5
+rounded-[25px]
+text-white
 hover:scale-105
 transition
 "
 >
 
-{q.solved
-? "Solve Again"
-: "Solve"}
+<div className="text-2xl">
+
+{card.icon}
+
+</div>
+
+<h1 className="text-3xl font-bold mt-2">
+
+{card.value}
+
+</h1>
+
+<p>
+
+{card.title}
+
+</p>
+
+</div>
+
+))
+}
+
+</div>
+
+<div className="space-y-5 mt-8">
+
+{
+filteredQuestions.map((q,index)=>(
+
+<div
+key={q._id}
+className="
+
+bg-white
+rounded-[30px]
+p-6
+hover:scale-[1.03]
+shadow-lg
+transition-all
+"
+>
+
+<div className="flex justify-between">
+
+<div className="flex gap-4">
+
+<div className="
+
+w-16
+h-16
+
+bg-[#8b5e3c]
+rounded-xl
+text-white
+flex
+justify-center
+items-center
+font-bold
+">
+
+{index+1}
+
+</div>
+
+<div>
+
+<h1 className="text-2xl font-bold">
+
+{q.title}
+
+</h1>
+
+<p className="text-gray-500">
+
+{q.description}
+
+</p>
+
+</div>
+
+</div>
+
+<div className="flex gap-4">
+
+<span
+className={`
+
+px-5
+py-2
+rounded-xl
+border
+${q.difficulty==="Easy"?"text-green-500 border-green-500":q.difficulty==="Medium"?"text-orange-500 border-orange-500":"text-red-500 border-red-500"}
+
+`}
+>
+
+{q.difficulty}
+
+</span>
+
+<button
+onClick={()=>
+navigate(`/problem/${q._id}`)
+}
+className="
+
+bg-[#8b5e3c]
+
+px-6
+py-3
+
+rounded-xl
+
+text-white
+font-bold
+
+cursor-pointer
+
+hover:scale-110
+hover:brightness-110
+
+transition
+
+"
+>
+
+{
+q.solvedBy?.length>0
+?
+"Solve Again"
+:
+"Solve"
+}
 
 </button>
 
-                    </div>
-                  </div>
-                </div>
-              )
-            )}
+</div>
 
-          </div>
+</div>
 
-        </div>
-      </div>
-    </div>
-  );
+</div>
+
+))
+
+}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+);
+
 }
 
 export default CoursePage;

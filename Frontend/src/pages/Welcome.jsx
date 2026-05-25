@@ -1,214 +1,349 @@
 import { useNavigate } from "react-router-dom";
+
 import logo from "../assets/logo.png";
 import video from "../assets/vid1.mp4";
 
-function Welcome() {
+function Welcome(){
 
-  const navigate = useNavigate();
+const navigate=useNavigate();
 
-  return (
+return(
 
-    <div
-      className="
-      w-full h-screen overflow-hidden
-      bg-gradient-to-br
-      from-[#f8f4ef]
-      via-[#f3ece4]
-      to-[#efe6dc]
-      flex justify-center items-center
-      px-6 py-5
-      "
-    >
+<div className="
 
-      {/* MAIN CONTAINER */}
+w-full
+min-h-screen
 
-      <div
-        className="
-        w-full max-w-[1450px]
-        h-[92vh]
-        rounded-[35px]
-        overflow-hidden
-        bg-white/30
-        backdrop-blur-xl
-        shadow-[0_10px_40px_rgba(0,0,0,0.12)]
-        grid grid-cols-1 lg:grid-cols-2
-        "
-      >
+bg-gradient-to-br
+from-[#f8f4ef]
+via-[#f3ece4]
+to-[#efe6dc]
 
-        {/* LEFT SIDE */}
+flex
+justify-center
+items-center
 
-        <div
-          className="
-          px-8 py-6
-          flex flex-col justify-center
-          gap-4
-          overflow-hidden
-          "
-        >
+p-5
 
-          {/* LOGO + TITLE */}
+">
 
-          <div className="flex items-center gap-4">
+<div className="
 
-            <img
-              src={logo}
-              alt="logo"
-              className="
-              w-20 h-20
-              rounded-full
-              border-4 border-[#c08a5b]
-              object-cover
-              shadow-xl
-              "
-            />
+w-full
+max-w-[1500px]
 
-            <h1
-              className="
-              text-5xl lg:text-6xl
-              font-bold
-              text-[#8b5e3c]
-              "
-              style={{ fontFamily: "Georgia" }}
-            >
-              LogicMint
-            </h1>
+min-h-[93vh]
 
-          </div>
+rounded-[40px]
 
-          {/* TAGLINE */}
+overflow-hidden
 
-          <p
-            className="
-            text-[#5a4030]
-            text-base lg:text-lg
-            leading-[34px]
-            max-w-[620px]
-            mb-1
-            "
-            style={{ fontFamily: "Poppins" }}
-          >
-            Code the impossible, build the future,
-            and turn your ideas into reality —
-            one line at a time.
-          </p>
+bg-white/20
 
-          {/* FEATURES BOX */}
+backdrop-blur-xl
 
-          <div
-            className="
-            bg-white/45
-            rounded-[30px]
-            p-4
-            border border-white/40
-            backdrop-blur-xl
-            shadow-lg
-            "
-          >
+shadow-[0_20px_60px_rgba(0,0,0,0.15)]
 
-            <h2
-              className="
-              text-2xl
-              font-bold
-              text-[#8b5e3c]
-              mb-4
-              "
-              style={{ fontFamily: "Georgia" }}
-            >
-              Why LogicMint?
-            </h2>
+grid
+lg:grid-cols-2
 
-            <div
-              className="
-              flex flex-col
-              gap-2
-              text-[#4d3728]
-              text-base
-              "
-              style={{ fontFamily: "Poppins" }}
-            >
+border
+border-white/40
 
-              <div className="pb-2 border-b border-[#d7b89a]">
-                Practice coding challenges
-              </div>
+">
 
-              <div className="pb-2 border-b border-[#d7b89a]">
-                Participate in coding contests
-              </div>
+{/* LEFT SIDE */}
 
-              <div className="pb-2 border-b border-[#d7b89a]">
-                Learn DSA & development
-              </div>
+<div className="
 
-              <div className="pb-2 border-b border-[#d7b89a]">
-                Track your coding progress
-              </div>
+px-10
+py-6
 
-              <div>
-                Build real-world projects
-              </div>
+flex
+flex-col
+justify-center
 
-            </div>
+gap-4
 
-            {/* BUTTON */}
+">
 
-            <button
-              onClick={() => navigate("/login")}
-              className="
-              mt-4
-              w-full
-              bg-[#8b5e3c]
-              text-white
-              py-3
-              rounded-full
-              text-lg
-              font-semibold
-              hover:scale-105
-              hover:brightness-110
-              hover:shadow-[0_0_30px_rgba(139,94,60,0.5)]
-              active:scale-95
-              transition duration-300
-              cursor-pointer
-              "
-            >
-              Get Started
-            </button>
+<div className="flex items-center gap-5">
 
-          </div>
+<img
 
-        </div>
+src={logo}
 
-        {/* RIGHT SIDE */}
+alt="logo"
 
-        <div
-          className="
-          relative
-          flex justify-center items-center
-          bg-[#f5efe8]
-          h-full
-          "
-        >
+className="
 
-          <video
-            src={video}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="
-            w-full h-full
-            object-cover
-            "
-          />
+w-24
+h-24
 
-          <div className="absolute inset-0 bg-white/10"></div>
+rounded-full
 
-        </div>
+border-4
+border-[#8b5e3c]
 
-      </div>
+shadow-xl
 
-    </div>
+hover:rotate-[360deg]
 
-  );
+transition
+duration-1000
+
+"
+
+/>
+
+<div>
+
+<h1
+
+className="
+
+text-5xl
+font-bold
+text-[#8b5e3c]
+
+"
+
+style={{
+fontFamily:"Georgia"
+}}
+
+>
+
+LogicMint
+
+</h1>
+
+<p
+
+className="
+
+text-[#5a4030]
+mt-2
+
+"
+
+>
+
+Build • Practice • Compete
+
+</p>
+
+</div>
+
+</div>
+
+<p
+
+className="
+
+text-[#4d3728]
+text-lg
+leading-9
+
+"
+
+>
+
+Code the impossible, build the future,
+and turn ideas into reality —
+one line at a time.
+
+</p>
+
+<div
+
+className="
+
+bg-white/40
+
+rounded-[30px]
+
+p-6
+
+backdrop-blur-xl
+
+shadow-lg
+
+border
+border-white/40
+
+"
+
+>
+
+<h2
+
+className="
+
+text-2xl
+font-bold
+
+text-[#8b5e3c]
+
+mb-5
+
+"
+
+>
+
+Why LogicMint?
+
+</h2>
+
+<div className="space-y-3 text-[#4d3728]">
+
+<div className="border-b pb-2">
+Practice coding challenges
+</div>
+
+<div className="border-b pb-2">
+Participate in contests
+</div>
+
+<div className="border-b pb-2">
+Learn DSA & Development
+</div>
+
+<div className="border-b pb-2">
+Track progress
+</div>
+
+<div>
+Build real projects
+</div>
+
+</div>
+
+<button
+
+onClick={()=>navigate("/login")}
+
+className="
+
+w-full
+
+mt-8
+
+bg-[#8b5e3c]
+
+text-white
+
+py-4
+
+rounded-full
+
+font-bold
+text-lg
+
+hover:scale-105
+hover:brightness-110
+
+hover:shadow-[0_0_40px_rgba(139,94,60,0.5)]
+
+transition-all
+duration-500
+
+"
+
+>
+
+Get Started →
+
+</button>
+
+</div>
+
+</div>
+
+{/* RIGHT SIDE */}
+
+<div className="relative">
+
+<video
+
+src={video}
+
+autoPlay
+muted
+loop
+playsInline
+
+className="
+
+w-full
+h-full
+
+object-cover
+
+"
+
+/>
+
+<div
+
+className="
+
+absolute
+inset-0
+
+bg-gradient-to-t
+
+from-black/20
+to-transparent
+
+"
+
+></div>
+
+<div
+
+className="
+
+absolute
+
+bottom-10
+left-10
+
+bg-white/20
+
+backdrop-blur-xl
+
+rounded-[30px]
+
+p-5
+
+text-white
+
+"
+
+>
+
+<h2 className="text-2xl font-bold">
+
+Start Your Coding Journey
+
+</h2>
+
+<p className="mt-2">
+
+Practice • Learn • Compete
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+);
 
 }
 

@@ -11,22 +11,17 @@ mongoose.connect(process.env.DB_URL)
 
 console.log("DB Connected");
 
-
 await QuestionModel.deleteMany({});
 
-console.log("Old Questions Deleted");
+await QuestionModel.insertMany(
+allQuestions
+);
 
-
-await QuestionModel.insertMany(allQuestions);
-
-console.log("100 Questions Added Successfully");
-
+console.log(
+allQuestions.length,
+"Questions added successfully"
+);
 
 process.exit();
-
-})
-.catch((err)=>{
-
-console.log(err);
 
 });

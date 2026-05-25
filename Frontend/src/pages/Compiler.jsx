@@ -55,7 +55,6 @@ useState("Run code to see output");
 const [loading,setLoading]=
 useState(false);
 
-
 // LANGUAGE CHANGE
 
 const handleLanguage=(e)=>{
@@ -73,7 +72,6 @@ setCode(lang.code);
 
 };
 
-
 // COPY
 
 const copyCode=()=>{
@@ -83,7 +81,6 @@ navigator.clipboard.writeText(code);
 alert("Code Copied");
 
 };
-
 
 // DOWNLOAD
 
@@ -110,7 +107,6 @@ link.click();
 
 };
 
-
 // RUN
 
 const runCode=async()=>{
@@ -129,7 +125,6 @@ await axios.post(
 `${import.meta.env.VITE_API_URL}/compiler-api/run`,
 
 {
-
 source_code:code,
 
 language_id:
@@ -179,7 +174,6 @@ setLoading(false);
 
 };
 
-
 return(
 
 <div className="
@@ -222,7 +216,6 @@ LogicMint Compiler
 
 </h1>
 
-
 <div className="
 flex
 gap-3
@@ -245,7 +238,6 @@ outline-none
 >
 
 {
-
 languages.map((lang)=>(
 
 <option
@@ -257,11 +249,9 @@ key={lang.id}
 </option>
 
 ))
-
 }
 
 </select>
-
 
 <button
 
@@ -286,13 +276,11 @@ transition
 <FaPlay/>
 
 {
-
 loading
 ?
 "Running..."
 :
 "Run"
-
 }
 
 </button>
@@ -300,7 +288,6 @@ loading
 </div>
 
 </div>
-
 
 {/* EDITOR */}
 
@@ -330,7 +317,6 @@ value || ""
 
 </div>
 
-
 {/* BUTTONS */}
 
 <div className="
@@ -355,9 +341,7 @@ gap-2
 
 >
 
-<FaCopy/>
-
-Copy
+<FaCopy/>Copy
 
 </button>
 
@@ -378,14 +362,11 @@ gap-2
 
 >
 
-<FaDownload/>
-
-Download
+<FaDownload/>Download
 
 </button>
 
 </div>
-
 
 {/* INPUT + OUTPUT */}
 

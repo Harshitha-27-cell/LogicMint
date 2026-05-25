@@ -4,13 +4,13 @@ import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function Login(){
+function Login() {
 
-const navigate=useNavigate();
+const navigate = useNavigate();
 
-const [showPassword,setShowPassword]=useState(false);
+const [showPassword, setShowPassword] = useState(false);
 
-const [user,setUser]=useState({
+const [user, setUser] = useState({
 
 email:"",
 password:""
@@ -41,27 +41,45 @@ user
 
 );
 
-alert("Login Successful");
+// UPDATED SUCCESS BLOCK
 
-localStorage.setItem(
+const loggedUser = res.data.user;
 
-"token",
-res.data.token
-
+console.log(
+"LOGIN RESPONSE:",
+loggedUser
 );
 
 localStorage.setItem(
 
 "user",
+
 JSON.stringify(
-res.data.user
+loggedUser
 )
 
 );
 
-// Redirect after login
+localStorage.setItem(
+
+"token",
+
+res.data.token
+
+);
+
+alert("Login Successful");
+
+if(loggedUser.role==="admin"){
+
+navigate("/admin");
+
+}
+else{
 
 navigate("/home");
+
+}
 
 }
 
@@ -123,8 +141,6 @@ max-w-[450px]
 
 >
 
-{/* LOGO */}
-
 <img
 
 src={logo}
@@ -151,8 +167,6 @@ left-5
 "
 
 />
-
-{/* TITLE */}
 
 <div className="mt-24">
 
@@ -197,8 +211,6 @@ Login to continue your coding journey
 
 </div>
 
-{/* EMAIL */}
-
 <input
 
 type="email"
@@ -216,28 +228,19 @@ onChange={handleChange}
 className="
 
 w-full
-
 p-4
-
 rounded-2xl
-
 border
 border-[#d7b89a]
-
 bg-white/60
-
 outline-none
-
 mb-5
-
 focus:ring-4
 focus:ring-[#d7b89a]
 
 "
 
 />
-
-{/* PASSWORD */}
 
 <div className="relative">
 
@@ -264,20 +267,13 @@ onChange={handleChange}
 className="
 
 w-full
-
 p-4
-
 rounded-2xl
-
 border
 border-[#d7b89a]
-
 bg-white/60
-
 outline-none
-
 mb-5
-
 focus:ring-4
 focus:ring-[#d7b89a]
 
@@ -302,10 +298,8 @@ className="
 absolute
 top-5
 right-5
-
 text-[#8b5e3c]
 text-xl
-
 cursor-pointer
 
 "
@@ -326,34 +320,23 @@ showPassword
 
 </div>
 
-{/* LOGIN BUTTON */}
-
 <button
 
 className="
 
 w-full
-
 bg-[#8b5e3c]
 text-white
-
 py-4
-
 rounded-full
-
 text-lg
 font-semibold
-
 hover:scale-105
 hover:brightness-110
-
 hover:shadow-[0_0_30px_rgba(139,94,60,0.5)]
-
 active:scale-95
-
 transition
 duration-300
-
 cursor-pointer
 
 "
@@ -363,8 +346,6 @@ cursor-pointer
 Login
 
 </button>
-
-{/* SIGNUP */}
 
 <p
 
@@ -389,7 +370,6 @@ className="
 text-[#8b5e3c]
 font-bold
 ml-2
-
 hover:underline
 
 "

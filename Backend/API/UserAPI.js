@@ -1,73 +1,67 @@
-import exp from 'express'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { UserModel } from '../Models/UserModel.js'
+import exp from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { UserModel } from "../Models/UserModel.js";
 
-export const userApp = exp.Router()
+export const userApp = exp.Router();
 
 
 // ================= SIGNUP =================
 
-userApp.post('/signup', async (req, res) => {
+userApp.post("/signup", async(req,res)=>{
 
 try{
 
-let newUser = req.body;
+const {
 
-console.log(
-"Received signup data:",
-JSON.stringify(newUser,null,2)
-);
+username,
+email,
+password,
+profilePic
 
-console.log("Received data:",newUser);
+}=req.body;
 
-let userExists=await UserModel.findOne({
-email:newUser.email
+const existing=
+
+await UserModel.findOne({
+
+email
+
 });
 
-if(userExists){
+if(existing){
 
 return res.status(400).json({
+
 message:"User already exists"
+
 });
 
 }
 
-const passwordRegex=
-/^(?=.*[A-Za-z].*[A-Za-z].*[A-Za-z])(?=.*\d.*\d.*\d)(?=.*[!@#$%^&*]).{7,}$/;
+const hashed=
 
-if(!passwordRegex.test(newUser.password)){
-
-return res.status(400).json({
-message:
-'Password must contain minimum 3 letters, 3 numbers and 1 special character'
-});
-
-}
-
-let hashedPassword=
 await bcrypt.hash(
-newUser.password,
+password,
 10
 );
 
-let userDoc=new UserModel({
+const user=
 
-username:newUser.username,
-email:newUser.email,
-password:hashedPassword,
-profilePic:newUser.profilePic || ""
+await UserModel.create({
+
+username,
+email,
+password:hashed,
+profilePic,
+role:"user",
+isDisabled:false
 
 });
 
-console.log("Saving:",userDoc);
+res.json({
 
-await userDoc.save();
-
-res.status(201).json({
-
-message:'Signup Successful',
-payload:userDoc
+message:"Signup Successful"
 
 });
 
@@ -75,12 +69,11 @@ payload:userDoc
 
 catch(err){
 
-console.log("Signup error:",err);
+console.log(err);
 
 res.status(500).json({
 
-message:"Error in Signup",
-error:err.message
+message:"Signup Error"
 
 });
 
@@ -92,17 +85,26 @@ error:err.message
 
 // ================= LOGIN =================
 
-userApp.post('/login', async(req,res)=>{
+userApp.post("/login",async(req,res)=>{
 
 try{
 
-let userCred=req.body;
+const {
 
-let user=await UserModel.findOne({
+email,
+password
 
-email:userCred.email
+}=req.body;
+
+
+const user=
+
+await UserModel.findOne({
+
+email
 
 });
+
 
 if(!user){
 
@@ -114,13 +116,30 @@ message:"Invalid Email"
 
 }
 
-let result=
+
+if(user.isDisabled){
+
+return res.status(403).json({
+
+message:
+"Your account has been disabled by admin"
+
+});
+
+}
+
+
+const matched=
+
 await bcrypt.compare(
-userCred.password,
+
+password,
 user.password
+
 );
 
-if(!result){
+
+if(!matched){
 
 return res.status(401).json({
 
@@ -130,22 +149,30 @@ message:"Invalid Password"
 
 }
 
-let token=jwt.sign(
+
+const token=
+
+jwt.sign(
 
 {
-email:user.email,
-username:user.username
+
+id:user._id,
+role:user.role
+
 },
 
 process.env.SECRET_KEY,
 
 {
+
 expiresIn:"1d"
+
 }
 
 );
 
-res.status(200).json({
+
+res.json({
 
 message:"Login Successful",
 
@@ -153,9 +180,17 @@ token,
 
 user:{
 
+_id:user._id,
+
 username:user.username,
+
 email:user.email,
-profilePic:user.profilePic || ""
+
+profilePic:user.profilePic || "",
+
+role:user.role,
+
+isDisabled:user.isDisabled
 
 }
 
@@ -169,10 +204,147 @@ console.log(err);
 
 res.status(500).json({
 
-message:"Error in Login"
+message:"Login Error"
 
 });
 
 }
 
 });
+
+
+
+
+// ================= GET ALL USERS =================
+
+userApp.get(
+
+"/all-users",
+
+async(req,res)=>{
+
+try{
+
+const users=
+
+await UserModel.find({
+
+role:"user"
+
+});
+
+console.log(users);
+
+res.send(users);
+
+}
+
+catch(err){
+
+console.log(err);
+
+res.status(500).json({
+
+message:"Error fetching users"
+
+});
+
+}
+
+}
+
+);
+
+
+
+
+// ================= DISABLE USER =================
+
+userApp.put(
+
+"/disable/:id",
+
+async(req,res)=>{
+
+try{
+
+await UserModel.findByIdAndUpdate(
+
+req.params.id,
+
+{
+isDisabled:true
+}
+
+);
+
+res.send({
+
+message:"Disabled"
+
+});
+
+}
+
+catch(err){
+
+console.log(err);
+
+res.status(500).json({
+
+message:"Error disabling user"
+
+});
+
+}
+
+}
+
+);
+
+
+
+
+// ================= ENABLE USER =================
+
+userApp.put(
+
+"/enable/:id",
+
+async(req,res)=>{
+
+try{
+
+await UserModel.findByIdAndUpdate(
+
+req.params.id,
+
+{
+isDisabled:false
+}
+
+);
+
+res.send({
+
+message:"Enabled"
+
+});
+
+}
+
+catch(err){
+
+console.log(err);
+
+res.status(500).json({
+
+message:"Error enabling user"
+
+});
+
+}
+
+}
+
+);

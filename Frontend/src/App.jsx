@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -8,9 +7,10 @@ import Compiler from "./pages/Compiler";
 import Practice from "./pages/Practice";
 import CoursePage from "./pages/CoursePage";
 import ProblemPage from "./pages/ProblemPage";
-
+import AdminDashboard from "./pages/AdminDashboard";
 import Loader from "./components/Loader";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 function App(){
 
@@ -19,6 +19,8 @@ return(
 <BrowserRouter>
 
 <Routes>
+
+{/* Welcome */}
 
 <Route
 path="/"
@@ -29,6 +31,9 @@ element={
 }
 />
 
+
+{/* Login */}
+
 <Route
 path="/login"
 element={
@@ -37,6 +42,9 @@ element={
 </Loader>
 }
 />
+
+
+{/* Signup */}
 
 <Route
 path="/signup"
@@ -48,6 +56,7 @@ element={
 />
 
 
+{/* Home */}
 
 <Route
 path="/home"
@@ -61,6 +70,7 @@ element={
 />
 
 
+{/* Practice */}
 
 <Route
 path="/practice"
@@ -73,7 +83,8 @@ element={
 }
 />
 
-/* Protected Compiler */
+
+{/* Compiler */}
 
 <Route
 path="/compiler"
@@ -86,10 +97,11 @@ element={
 }
 />
 
-/* Protected Course */
+
+{/* Course */}
 
 <Route
-path="/practice/:language"
+path="/course/:language"
 element={
 <ProtectedRoute>
 <Loader>
@@ -99,7 +111,8 @@ element={
 }
 />
 
-/* Protected Problem */
+
+{/* Problem */}
 
 <Route
 path="/problem/:id"
@@ -109,6 +122,20 @@ element={
 <ProblemPage/>
 </Loader>
 </ProtectedRoute>
+}
+/>
+
+
+{/* Admin Only */}
+
+<Route
+path="/admin"
+element={
+<AdminRoute>
+<Loader>
+<AdminDashboard/>
+</Loader>
+</AdminRoute>
 }
 />
 

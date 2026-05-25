@@ -1,6 +1,6 @@
-import { useEffect,useState } from "react";
+import {useEffect,useState} from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import {useParams} from "react-router-dom";
 
 function ProblemPage(){
 
@@ -36,7 +36,68 @@ await axios.get(
 
 );
 
-setQuestion(res.data);
+setQuestion(
+res.data
+);
+
+if(res.data.language==="python"){
+
+setCode(
+`print("Hello World")`
+);
+
+}
+
+else if(res.data.language==="cpp"){
+
+setCode(
+`#include<iostream>
+using namespace std;
+
+int main(){
+
+return 0;
+
+}`
+);
+
+}
+
+else if(res.data.language==="java"){
+
+setCode(
+`class Main{
+
+public static void main(String args[]){
+
+}
+
+}`
+);
+
+}
+
+else if(res.data.language==="c"){
+
+setCode(
+`#include<stdio.h>
+
+int main(){
+
+return 0;
+
+}`
+);
+
+}
+
+else{
+
+setCode(
+`console.log("")`
+);
+
+}
 
 }
 
@@ -45,6 +106,26 @@ catch(err){
 console.log(err);
 
 }
+
+};
+
+
+
+const getLanguageId=()=>{
+
+const map={
+
+python:71,
+cpp:54,
+java:62,
+javascript:63,
+c:50
+
+};
+
+return map[
+question.language
+];
 
 };
 
@@ -64,14 +145,66 @@ await axios.post(
 {
 
 source_code:code,
-language_id:71,
-stdin:input,
+language_id:getLanguageId(),
+stdin:input
+
+}
+
+);
+
+setOutput(
+
+res.data.stdout ||
+
+res.data.stderr ||
+
+res.data.compile_output ||
+
+"Nothing returned"
+
+);
+
+}
+
+catch(err){
+
+console.log(err);
+
+}
+
+setLoading(false);
+
+};
+
+
+
+
+const submitCode=async()=>{
+
+try{
+
+setLoading(true);
+
+const res=
+await axios.post(
+
+`${import.meta.env.VITE_API_URL}/compiler-api/run`,
+
+{
+
+source_code:code,
+
+language_id:
+getLanguageId(),
+
 userId:user._id,
+
 questionId:id
 
 }
 
 );
+
 
 if(res.data.solved){
 
@@ -80,9 +213,12 @@ setOutput(
 `✅ Accepted
 
 Passed:
+
 ${res.data.passedCases}
 /
-${res.data.totalCases}`
+${res.data.totalCases}
+
+Question Solved Successfully`
 
 );
 
@@ -94,14 +230,16 @@ setOutput(
 
 `❌ Wrong Answer
 
+Failed Test Case
+
 Input:
-${res.data.failedCase?.input || ""}
+${res.data.failedCase.input}
 
 Expected:
-${res.data.failedCase?.expected || ""}
+${res.data.failedCase.expected}
 
 Got:
-${res.data.failedCase?.actual || ""}`
+${res.data.failedCase.actual}`
 
 );
 
@@ -113,12 +251,6 @@ catch(err){
 
 console.log(err);
 
-setOutput(
-
-"Error while compiling"
-
-);
-
 }
 
 setLoading(false);
@@ -126,16 +258,32 @@ setLoading(false);
 };
 
 
+
 return(
 
-<div className="min-h-screen bg-[#0d0d0d] text-white p-5">
+<div className="
+
+min-h-screen
+bg-[#0d0d0d]
+text-white
+p-5
+
+">
 
 <div className="grid grid-cols-2 gap-5">
 
 
 {/* LEFT */}
 
-<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-6 shadow-lg">
+<div className="
+
+bg-[#141414]
+rounded-[25px]
+border
+border-[#8b5e3c]
+p-6
+
+">
 
 <h1 className="text-4xl font-bold">
 
@@ -146,25 +294,44 @@ return(
 
 <div className="mt-5">
 
-<span className={`
+<span
+
+className={`
 
 px-4
 py-2
 rounded-xl
 
 ${question.difficulty==="Easy"
-?"bg-green-500":
-question.difficulty==="Medium"
-?"bg-orange-500":
-"bg-red-500"}
 
-`}>
+?
+
+"bg-green-500"
+
+:
+
+question.difficulty==="Medium"
+
+?
+
+"bg-orange-500"
+
+:
+
+"bg-red-500"
+
+}
+
+`}
+
+>
 
 {question.difficulty}
 
 </span>
 
 </div>
+
 
 
 <h2 className="mt-8 font-bold text-xl">
@@ -180,6 +347,7 @@ Problem Statement
 </p>
 
 
+
 {/* EXAMPLES */}
 
 <h2 className="mt-8 font-bold text-xl">
@@ -188,14 +356,30 @@ Examples
 
 </h2>
 
+
 {
+
 question.visibleTestCases
+
 ?.slice(0,2)
-.map((example,index)=>(
+
+.map(
+
+(example,index)=>(
 
 <div
+
 key={index}
-className="bg-black p-5 rounded-xl mt-4"
+
+className="
+
+bg-black
+p-5
+rounded-xl
+mt-4
+
+"
+
 >
 
 <h2 className="font-bold">
@@ -204,36 +388,52 @@ Example {index+1}
 
 </h2>
 
-<p className="mt-3">
+<p className="mt-2">
 
 Input:
+
 {" "}
-{example.input || "No input"}
+
+{example.input ||
+
+"No Input"}
 
 </p>
 
 <p className="mt-2">
 
 Output:
+
 {" "}
+
 {example.output}
 
 </p>
 
-<p className="text-gray-400 mt-2">
+<p className="mt-3 text-gray-400">
 
 Explanation:
 
 {" "}
 
-{question.explanation}
+{
+
+question.explanation ||
+
+"No explanation available"
+
+}
 
 </p>
 
 </div>
 
-))
+)
+
+)
+
 }
+
 
 
 
@@ -258,11 +458,17 @@ question.visibleTestCases?.map(
 
 key={index}
 
-className="bg-[#1f1f1f] p-4 rounded-xl"
+className="
+
+bg-[#1f1f1f]
+p-4
+rounded-xl
+
+"
 
 >
 
-<h3>
+<h3 className="font-bold">
 
 Test Case {index+1}
 
@@ -271,15 +477,21 @@ Test Case {index+1}
 <p>
 
 Input:
+
 {" "}
-{test.input || "No input"}
+
+{test.input||
+
+"No input"}
 
 </p>
 
 <p>
 
 Expected:
+
 {" "}
+
 {test.output}
 
 </p>
@@ -298,13 +510,23 @@ Expected:
 
 
 
+
 {/* RIGHT */}
 
 <div className="space-y-5">
 
-<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-5">
 
-<h1 className="font-bold text-2xl">
+<div className="
+
+bg-[#141414]
+rounded-[25px]
+border
+border-[#8b5e3c]
+p-5
+
+">
+
+<h1 className="text-2xl font-bold">
 
 Code Editor
 
@@ -316,7 +538,9 @@ value={code}
 
 onChange={(e)=>{
 
-setCode(e.target.value)
+setCode(
+e.target.value
+)
 
 }}
 
@@ -325,17 +549,19 @@ className="
 w-full
 h-[350px]
 bg-black
-mt-5
 rounded-xl
+mt-5
 p-5
-outline-none
 font-mono
+outline-none
 
 "
 
-placeholder="Write code here..."
+>
 
-/>
+
+</textarea>
+
 
 
 <div className="flex gap-5 mt-5">
@@ -379,7 +605,7 @@ loading
 
 <button
 
-onClick={runCode}
+onClick={submitCode}
 
 className="
 
@@ -409,7 +635,15 @@ Submit
 
 <div className="grid grid-cols-2 gap-5">
 
-<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-5">
+<div className="
+
+bg-[#141414]
+rounded-[25px]
+border
+border-[#8b5e3c]
+p-5
+
+">
 
 <h2>
 
@@ -423,7 +657,9 @@ value={input}
 
 onChange={(e)=>{
 
-setInput(e.target.value)
+setInput(
+e.target.value
+)
 
 }}
 
@@ -431,21 +667,30 @@ className="
 
 w-full
 h-[180px]
-
 bg-black
 rounded-xl
-
-mt-3
 p-4
+mt-3
 
 "
 
-/>
+>
+
+</textarea>
 
 </div>
 
 
-<div className="bg-[#141414] rounded-[25px] border border-[#8b5e3c] p-5">
+
+<div className="
+
+bg-[#141414]
+rounded-[25px]
+border
+border-[#8b5e3c]
+p-5
+
+">
 
 <h2>
 
@@ -460,12 +705,10 @@ className="
 bg-black
 rounded-xl
 h-[180px]
-
 mt-3
 p-4
-
-text-green-400
 overflow-auto
+text-green-400
 whitespace-pre-wrap
 
 "
