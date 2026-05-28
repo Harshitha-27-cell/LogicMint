@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-function CourseCard({course}){
+function CourseCard({ course, progressData = { solved: 0, total: 0, progress: 0 } }) {
+  const pct = progressData.progress ?? 0;
 
 const navigate=useNavigate();
 
@@ -9,12 +10,13 @@ return(
 <div
 
 onClick={()=>
-navigate(`/practice/${course.slug}`)
+navigate(`/course/${course.slug}`)
 }
 
 className="
 
-bg-white/50
+bg-white/80
+dark:bg-[#2a211c]/90
 backdrop-blur-xl
 rounded-[35px]
 overflow-hidden
@@ -89,6 +91,7 @@ pb-12
 min-h-[180px]
 
 bg-[#fffdfb]
+dark:bg-[#1f1814]
 
 ">
 
@@ -187,22 +190,17 @@ font-semibold
 </div>
 
 
-<div className="
-
-w-full
-h-4
-mt-6
-
-rounded-full
-
-bg-gradient-to-r
-from-[#8b5e3c]
-via-[#b47b52]
-to-[#8b5e3c]
-
-opacity-70
-
-"></div>
+<div className="mt-6">
+<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+{progressData.solved}/{progressData.total || course.problems} solved · {pct}%
+</p>
+<div className="w-full h-4 rounded-full bg-[#ead8c9] dark:bg-white/10 overflow-hidden">
+<div
+className="h-full bg-gradient-to-r from-[#8b5e3c] to-[#b47b52] transition-all duration-500"
+style={{ width: `${pct}%` }}
+/>
+</div>
+</div>
 
 </div>
 

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import logo from "../assets/logo.png";
 
@@ -9,23 +10,33 @@ FaEye,
 FaEyeSlash
 }
 from "react-icons/fa";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
-function Login(){
+function Login() {
 
-const navigate=useNavigate();
+const navigate = useNavigate();
+const location = useLocation();
 
-const [showPassword,setShowPassword]=
+const [showPassword, setShowPassword] =
 useState(false);
 
-const [user,setUser]=useState({
+const [user, setUser] = useState({
 
-email:"",
-password:""
+email: "",
+password: ""
 
 });
 
+const gmailRegex=/^[A-Za-z][A-Za-z0-9]{4,}@gmail\.com$/;
+const passwordRegex=/^(?=(?:.*[A-Za-z]){3,})(?=(?:.*[0-9]){3,})(?=(?:.*[!@#$%^&*]){1,}).+$/;
 
-const handleChange=(e)=>{
+useEffect(()=>{
+if(location.state?.message){
+toast.error(location.state.message);
+}
+},[location.state]);
+
+const handleChange = (e) => {
 
 setUser({
 
@@ -39,20 +50,27 @@ e.target.value
 };
 
 
-
 // LOGIN FUNCTION
 
-const handleLogin=async(e)=>{
+const handleLogin = async (e) => {
 
 e.preventDefault();
 
-try{
+if(!gmailRegex.test(user.email)){
+toast.error("Enter a valid Gmail address in the required format.");
+return;
+}
 
-const res=
+if(!passwordRegex.test(user.password)){
+toast.error("Password must include at least 3 letters, 3 numbers and 1 special character.");
+return;
+}
 
-await axios.post(
+try {
 
-`${import.meta.env.VITE_API_URL}/user-api/login`,
+const res = await axios.post(
+
+`${import.meta.env.VITE_API_URL}/api/auth/login`,
 
 user
 
@@ -83,42 +101,55 @@ localStorage.setItem(
 
 "token",
 
-res.data.token
+res.data.accessToken || res.data.token
 
 );
+
+if(res.data.refreshToken){
+
+localStorage.setItem(
+
+"refreshToken",
+
+res.data.refreshToken
+
+);
+
+}
 
 
 // ADMIN LOGIN
 
-if(
+if (
 
-res.data.user.admin
+res.data.user.admin ||
 
-){
+res.data.user.role === "admin"
+
+) {
 
 navigate(
 
 "/admin",
 
 {
-replace:true
+replace: true
 }
 
 );
 
 }
 
-
 // NORMAL USER LOGIN
 
-else{
+else {
 
 navigate(
 
 "/home",
 
 {
-replace:true
+replace: true
 }
 
 );
@@ -127,14 +158,11 @@ replace:true
 
 }
 
-catch(err){
+catch (err) {
 
-alert(
-
+toast.error(
 err.response?.data?.message ||
-
-"Login Failed"
-
+"Login failed"
 );
 
 }
@@ -142,8 +170,7 @@ err.response?.data?.message ||
 };
 
 
-
-return(
+return (
 
 <div
 
@@ -166,7 +193,6 @@ px-4
 "
 
 >
-
 
 <form
 
@@ -195,7 +221,6 @@ max-w-[450px]
 "
 
 >
-
 
 <img
 
@@ -226,8 +251,6 @@ left-5
 
 />
 
-
-
 <div className="mt-24">
 
 <h1
@@ -244,7 +267,7 @@ mb-2
 "
 
 style={{
-fontFamily:"Georgia"
+fontFamily: "Georgia"
 }}
 
 >
@@ -252,7 +275,6 @@ fontFamily:"Georgia"
 Welcome Back
 
 </h1>
-
 
 <p
 
@@ -273,7 +295,6 @@ Login to continue your coding journey
 </p>
 
 </div>
-
 
 
 <input
@@ -313,7 +334,6 @@ focus:ring-[#d7b89a]
 "
 
 />
-
 
 
 <div className="relative">
@@ -368,18 +388,17 @@ focus:ring-[#d7b89a]
 
 />
 
-
 <button
 
 type="button"
 
-onClick={()=>{
+onClick={() => {
 
 setShowPassword(
 
 !showPassword
 
-)
+);
 
 }}
 
@@ -417,7 +436,6 @@ showPassword
 </button>
 
 </div>
-
 
 
 <button
@@ -460,7 +478,13 @@ Login
 
 </button>
 
+<div className="flex items-center gap-4 my-6">
+<span className="flex-1 h-px bg-[#ead8c9]" />
+<span className="text-sm text-gray-500">or</span>
+<span className="flex-1 h-px bg-[#ead8c9]" />
+</div>
 
+<GoogleLoginButton />
 
 <p
 
@@ -497,6 +521,16 @@ hover:underline
 >
 
 Signup
+
+</Link>
+
+</p>
+
+<p className="text-center mt-3 text-[#5a4030]">
+
+<Link to="/forgot-password" className="text-[#8b5e3c] font-bold hover:underline">
+
+Forgot Password?
 
 </Link>
 

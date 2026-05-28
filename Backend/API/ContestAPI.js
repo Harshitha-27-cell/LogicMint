@@ -22,16 +22,24 @@ async(req,res)=>{
 
 try{
 
-const { title, description, duration, questions } = req.body;
+const {
+  title,
+  description,
+  duration,
+  startDate,
+  startTime: startTimeStr,
+  endDate,
+  endTime: endTimeStr,
+  rules,
+  questions
+} = req.body;
 
-const now = new Date();
+const startTime = new Date(`${startDate}T${startTimeStr || "00:00"}`);
+const endTime = new Date(`${endDate}T${endTimeStr || "23:59"}`);
+
 const durationParts = (duration || "02:00:00").split(":").map(Number);
 const hours = durationParts[0] || 2;
 const mins = durationParts[1] || 0;
-const secs = durationParts[2] || 0;
-const endTime = new Date(
-  now.getTime() + (hours * 3600 + mins * 60 + secs) * 1000
-);
 
 const questionRefs = [];
 
@@ -39,8 +47,9 @@ for (const q of questions || []) {
   const created = await QuestionModel.create({
     title: q.title,
     description: q.description,
-    difficulty: "Medium",
-    language: "python",
+    explanation: q.explanation || "",
+    difficulty: q.difficulty || "Medium",
+    language: q.language || "python",
     visibleTestCases: q.testCases || [],
     hiddenTestCases: []
   });
@@ -53,7 +62,8 @@ for (const q of questions || []) {
 const contest = await Contest.create({
   title,
   description: description || "",
-  startTime: now,
+  rules: rules || "",
+  startTime,
   endTime,
   duration: hours * 60 + mins,
   questions: questionRefs,
@@ -94,27 +104,31 @@ try{
 
 const now=new Date();
 
-const contests=
-
-await Contest.find({
-
-released:true,
-
-startTime:{
-$lte:now
-},
-
-endTime:{
-$gte:now
-}
-
+const contests = await Contest.find({
+  released: true,
+  endTime: { $gte: now }
 })
+  .populate("questions.questionId")
+  .sort({ startTime: 1 });
 
-.populate(
-"questions.questionId"
-);
+const enriched = contests.map((c) => {
+  const doc = c.toObject();
+  const isLive = c.startTime <= now && c.endTime >= now;
+  const timeLeftMs = Math.max(0, c.endTime - now);
+  const h = Math.floor(timeLeftMs / 3600000);
+  const m = Math.floor((timeLeftMs % 3600000) / 60000);
+  const s = Math.floor((timeLeftMs % 60000) / 1000);
+  return {
+    ...doc,
+    isLive,
+    status: isLive ? "LIVE" : c.startTime > now ? "UPCOMING" : "ENDED",
+    timeLeft: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
+    questionCount: c.questions?.length || 0,
+    participantCount: c.participants?.length || 0
+  };
+});
 
-res.send(contests);
+res.send(enriched);
 
 }
 

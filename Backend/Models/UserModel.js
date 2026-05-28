@@ -46,6 +46,11 @@ default:""
 
 resetTokenExpiry:{
 type:Date
+},
+
+googleId:{
+type:String,
+default:""
 }
 
 },{ timestamps:true });

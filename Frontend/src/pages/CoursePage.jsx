@@ -1,7 +1,8 @@
 import { useEffect,useState } from "react";
 import axios from "axios";
 import {useParams,useNavigate} from "react-router-dom";
-import Navbar from "../components/Navbar";
+import AppNavbar from "../components/AppNavbar";
+import PageShell from "../components/PageShell";
 import practicebg from "../assets/Practicebg.png";
 
 import{
@@ -30,15 +31,49 @@ const normalizedLanguage={
 
 }[language]||language.toLowerCase();
 
+const [progressStats,setProgressStats]=useState({ overall:0, easySolved:0, mediumSolved:0, hardSolved:0, easyTotal:0, mediumTotal:0, hardTotal:0 });
+
 useEffect(()=>{
 
 fetchQuestions();
 
+const refresh=()=>fetchQuestions();
+
+window.addEventListener("progress-updated",refresh);
+
+window.addEventListener("focus",refresh);
+
+return ()=>{
+
+window.removeEventListener("progress-updated",refresh);
+
+window.removeEventListener("focus",refresh);
+
+};
+
 },[language]);
+
+const user=JSON.parse(localStorage.getItem("user")||"{}");
 
 const fetchQuestions=async()=>{
 
 try{
+
+if(user?._id){
+
+const res=await axios.get(
+
+`${import.meta.env.VITE_API_URL}/question-api/questions/${normalizedLanguage}/${user._id}`
+
+);
+
+setQuestions(res.data?.questions||[]);
+
+setProgressStats(res.data?.progress||{});
+
+return;
+
+}
 
 const res=await axios.get(
 
@@ -46,9 +81,7 @@ const res=await axios.get(
 
 );
 
-setQuestions(
-res.data || []
-);
+setQuestions(res.data||[]);
 
 }
 catch(err){
@@ -73,7 +106,7 @@ filteredQuestions.length;
 
 const solvedQuestions=
 filteredQuestions.filter(
-q=>q.solvedBy?.length>0
+q=>q.solved
 ).length;
 
 const progress=
@@ -105,34 +138,24 @@ q=>q.difficulty==="Hard"
 ).length;
 
 const easySolved=
-filteredQuestions.filter(
-q=>
-q.difficulty==="Easy"
-&&
-q.solvedBy?.length>0
-).length;
+progressStats.easySolved??
+filteredQuestions.filter((q)=>q.difficulty==="Easy"&&q.solved).length;
 
 const mediumSolved=
-filteredQuestions.filter(
-q=>
-q.difficulty==="Medium"
-&&
-q.solvedBy?.length>0
-).length;
+progressStats.mediumSolved??
+filteredQuestions.filter((q)=>q.difficulty==="Medium"&&q.solved).length;
 
 const hardSolved=
-filteredQuestions.filter(
-q=>
-q.difficulty==="Hard"
-&&
-q.solvedBy?.length>0
-).length;
+progressStats.hardSolved??
+filteredQuestions.filter((q)=>q.difficulty==="Hard"&&q.solved).length;
+
+const displayProgress=progressStats.overall??progress;
 
 return(
 
-<div className="min-h-screen bg-[#f6f2ed]">
+<PageShell>
 
-<Navbar/>
+<AppNavbar/>
 
 <div className="flex gap-6 p-6">
 
@@ -168,7 +191,7 @@ font-bold
 
 ">
 
-{progress}%
+{displayProgress}%
 
 </div>
 
@@ -344,7 +367,7 @@ value:solvedQuestions
 {
 icon:<FaChartLine/>,
 title:"Progress",
-value:`${progress}%`
+value:`${displayProgress}%`
 },
 
 {
@@ -498,7 +521,7 @@ transition
 >
 
 {
-q.solvedBy?.length>0
+q.solved
 ?
 "Solve Again"
 :
@@ -523,7 +546,7 @@ q.solvedBy?.length>0
 
 </div>
 
-</div>
+</PageShell>
 
 );
 

@@ -111,9 +111,17 @@ questionApp.get(
                   (updated.filter((q) => q.solved).length / questions.length) * 100
                 )
               : 0,
-          easy: Math.round((easySolved / easyTotal) * 100),
-          medium: Math.round((mediumSolved / mediumTotal) * 100),
-          hard: Math.round((hardSolved / hardTotal) * 100)
+          easy: easyTotal ? Math.round((easySolved / easyTotal) * 100) : 0,
+          medium: mediumTotal ? Math.round((mediumSolved / mediumTotal) * 100) : 0,
+          hard: hardTotal ? Math.round((hardSolved / hardTotal) * 100) : 0,
+          easySolved,
+          mediumSolved,
+          hardSolved,
+          easyTotal,
+          mediumTotal,
+          hardTotal,
+          solvedCount: updated.filter((q) => q.solved).length,
+          totalCount: questions.length
         }
       });
     } catch (err) {
@@ -121,6 +129,38 @@ questionApp.get(
     }
   }
 );
+
+/** Per-language progress for practice course cards */
+questionApp.get("/progress-summary/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const languages = ["cpp", "python", "java", "c", "javascript"];
+    const summary = {};
+
+    for (const language of languages) {
+      const questions = await QuestionModel.find({ language });
+      const questionIds = questions.map((q) => q._id);
+      const solved = await Submission.countDocuments({
+        userId,
+        status: "Solved",
+        questionId: { $in: questionIds }
+      });
+      summary[language] = {
+        solved,
+        total: questions.length,
+        progress:
+          questions.length > 0
+            ? Math.round((solved / questions.length) * 100)
+            : 0
+      };
+    }
+
+    res.send(summary);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ message: "Progress error" });
+  }
+});
 
 questionApp.get(
   "/:language",

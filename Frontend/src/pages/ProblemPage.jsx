@@ -1,6 +1,8 @@
 import {useEffect,useState} from "react";
 import axios from "axios";
 import {useParams} from "react-router-dom";
+import AppNavbar from "../components/AppNavbar";
+import PageShell from "../components/PageShell";
 
 function ProblemPage(){
 
@@ -210,7 +212,7 @@ if(res.data.solved){
 
 setOutput(
 
-`✅ Accepted
+`Accepted
 
 Passed:
 
@@ -222,13 +224,15 @@ Question Solved Successfully`
 
 );
 
+window.dispatchEvent(new Event("progress-updated"));
+
 }
 
 else{
 
 setOutput(
 
-`❌ Wrong Answer
+`Wrong Answer
 
 Failed Test Case
 
@@ -261,6 +265,8 @@ setLoading(false);
 
 return(
 
+<PageShell>
+<AppNavbar/>
 <div className="
 
 min-h-screen
@@ -728,6 +734,7 @@ whitespace-pre-wrap
 </div>
 
 </div>
+</PageShell>
 
 );
 

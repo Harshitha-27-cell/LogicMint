@@ -21,6 +21,8 @@ profilePic:""
 
 });
 
+const gmailRegex=/^[A-Za-z][A-Za-z0-9]{4,}@gmail\.com$/;
+
 
 const handleChange=(e)=>{
 
@@ -76,17 +78,24 @@ if(
 ){
 
 setMessage(
-"❌ Username, Email and Password required"
+"Username, email and password are required."
 );
 
 return;
 
 }
 
+if(!gmailRegex.test(user.email)){
+setMessage(
+"Use a valid Gmail address starting with a letter, followed by at least 4 more letters or numbers, then @gmail.com."
+);
+return;
+}
+
 if(!passwordValid){
 
 setMessage(
-"❌ Password requirements not fulfilled"
+"Password must include at least 3 letters, 3 numbers, and 1 special character."
 );
 
 return;
@@ -97,7 +106,7 @@ try{
 
 await axios.post(
 
-`${import.meta.env.VITE_API_URL}/user-api/signup`,
+`${import.meta.env.VITE_API_URL}/api/auth/register`,
 
 {
 username:user.username,
@@ -109,7 +118,7 @@ profilePic:user.profilePic
 );
 
 setMessage(
-"✅ Account Created Successfully"
+"Account created successfully."
 );
 
 setTimeout(()=>{
@@ -126,7 +135,7 @@ setMessage(
 
 err.response?.data?.message ||
 
-"❌ Signup Failed"
+"Signup failed"
 
 );
 

@@ -51,6 +51,11 @@ ref:"User"
 description:{
 type:String,
 default:""
+},
+
+rules:{
+type:String,
+default:""
 }
 
 });

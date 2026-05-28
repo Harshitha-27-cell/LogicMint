@@ -1,70 +1,55 @@
+import { useEffect, useState } from "react";
 import CourseCard from "../components/CourseCard";
-import Navbar from "../components/Navbar";
+import AppNavbar from "../components/AppNavbar";
+import PageShell from "../components/PageShell";
 import courses from "../data/courses";
+import api from "../services/api";
 
-function Practice(){
+/** Practice hub — shows per-user progress on each course */
+function Practice() {
+  const [progress, setProgress] = useState({});
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-return(
+  const loadProgress = () => {
+    if (!user?._id) return;
+    api
+      .get(`/question-api/progress-summary/${user._id}`)
+      .then((r) => setProgress(r.data || {}))
+      .catch(() => {});
+  };
 
-<div className="
+  useEffect(() => {
+    loadProgress();
+    window.addEventListener("progress-updated", loadProgress);
+    window.addEventListener("focus", loadProgress);
+    return () => {
+      window.removeEventListener("progress-updated", loadProgress);
+      window.removeEventListener("focus", loadProgress);
+    };
+  }, []);
 
-min-h-screen
-bg-gradient-to-br
-from-[#f8f4ef]
-via-[#f3ece4]
-to-[#efe6dc]
-
-">
-
-<Navbar/>
-
-<div className="p-10">
-
-<h1 className="
-
-text-5xl
-font-bold
-text-[#8b5e3c]
-mb-8
-
-">
-
-Practice Courses
-
-</h1>
-
-<div className="
-
-grid
-grid-cols-1
-lg:grid-cols-2
-
-gap-10
-
-max-w-[1700px]
-mx-auto
-
-">
-
-{
-courses.map(course=>(
-
-<CourseCard
-key={course.id}
-course={course}
-/>
-
-))
-}
-
-</div>
-
-</div>
-
-</div>
-
-)
-
+  return (
+    <PageShell>
+      <AppNavbar />
+      <div className="p-8 lg:p-10 max-w-[1700px] mx-auto">
+        <h1 className="text-4xl lg:text-5xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4] mb-2">
+          Practice Courses
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 mb-10">
+          Pick a language and solve problems — progress updates after each solve
+        </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {courses.map((course) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              progressData={progress[course.slug] || { solved: 0, total: 0, progress: 0 }}
+            />
+          ))}
+        </div>
+      </div>
+    </PageShell>
+  );
 }
 
 export default Practice;

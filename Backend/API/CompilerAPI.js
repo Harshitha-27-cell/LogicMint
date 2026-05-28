@@ -2,7 +2,8 @@ import exp from "express";
 import axios from "axios";
 
 import Submission from "../Models/SubmissionModel.js";
-import {QuestionModel} from "../Models/QuestionModel.js";
+import { QuestionModel } from "../Models/QuestionModel.js";
+import { awardBadge } from "../services/badgeService.js";
 
 const compilerApp=exp.Router();
 
@@ -185,31 +186,24 @@ questionId
 ){
 
 await Submission.findOneAndUpdate(
-
-{
-
-userId,
-questionId
-
-},
-
-{
-
-status:"Solved",
-passedCases,
-totalCases,
-code:source_code
-
-},
-
-{
-
-upsert:true
-
-}
-
+  { userId, questionId },
+  {
+    status: "Solved",
+    passedCases,
+    totalCases,
+    code: source_code,
+    submittedAt: new Date()
+  },
+  { upsert: true }
 );
 
+const solvedCount = await Submission.countDocuments({
+  userId,
+  status: "Solved"
+});
+if (solvedCount === 1) {
+  await awardBadge(userId, "first_solve");
+}
 }
 
 

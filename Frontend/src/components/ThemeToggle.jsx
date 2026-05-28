@@ -44,11 +44,11 @@ dark
 
 ?
 
-"☀ Light"
+"Light"
 
 :
 
-"🌙 Dark"
+"Dark"
 
 }
 

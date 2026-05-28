@@ -8,6 +8,11 @@ difficulty:String,
 
 description:String,
 
+explanation:{
+type:String,
+default:""
+},
+
 language:String,
 
 explanation:String,
