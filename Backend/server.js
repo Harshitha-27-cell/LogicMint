@@ -18,6 +18,7 @@ import { aiApp } from "./API/AIAPI.js";
 import { notificationApp } from "./API/NotificationAPI.js";
 import { createNotification } from "./API/NotificationAPI.js";
 
+/* Main backend server that wires all APIs and realtime sockets */
 dotenv.config();
 
 const app=exp();

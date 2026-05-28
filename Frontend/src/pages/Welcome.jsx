@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import video from "../assets/vid1.mp4";
 
-/** Landing page — no overlay journey box */
+/* Public welcome page with short platform intro */
 function Welcome() {
   const navigate = useNavigate();
 
@@ -14,11 +14,11 @@ function Welcome() {
             <img
               src={logo}
               alt="LogicMint"
-              className="w-24 h-24 rounded-full border-4 border-[#8b5e3c] shadow-xl hover:rotate-[360deg] transition duration-1000"
+              className="w-16 h-16 rounded-full border-4 border-[#8b5e3c] shadow-xl hover:rotate-[360deg] transition duration-1000 object-cover"
             />
             <div>
               <h1
-                className="text-5xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4]"
+                className="text-4xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4]"
                 style={{ fontFamily: "Georgia" }}
               >
                 LogicMint

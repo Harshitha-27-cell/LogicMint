@@ -6,6 +6,7 @@ import nodemailer from "nodemailer";
 import { UserModel } from "../Models/UserModel.js";
 import { verifyToken } from "../middlewares/authMiddleware.js";
 
+/* User login and account APIs including Google and reset password */
 export const authApp = exp.Router();
 
 const ADMIN_EMAIL = "admin@logicmint.com";

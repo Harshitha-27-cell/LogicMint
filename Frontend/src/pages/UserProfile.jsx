@@ -20,10 +20,7 @@ function HeatCell({ count }) {
   return <div className={`w-4 h-4 rounded-[4px] ${classes}`} />;
 }
 
-/**
- * Dynamic user profile page inspired by the requested reference.
- * Includes profile, stats, heatmap, learning progress and achievements.
- */
+/* User profile page with edit, heatmap and learning progress */
 function UserProfile() {
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);

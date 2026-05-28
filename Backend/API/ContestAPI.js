@@ -9,6 +9,7 @@ import ContestSubmission from
 import {QuestionModel}
 from "../Models/QuestionModel.js";
 
+/* Contest APIs for create, join, submit, current and previous lists */
 const contestApp=exp.Router();
 
 function enrichContest(contestDoc, now = new Date()) {

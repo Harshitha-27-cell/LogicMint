@@ -527,16 +527,6 @@ Signup
 
 </p>
 
-<p className="text-center mt-3 text-[#5a4030]">
-
-<Link to="/forgot-password" className="text-[#8b5e3c] font-bold hover:underline">
-
-Forgot Password?
-
-</Link>
-
-</p>
-
 </form>
 
 </div>

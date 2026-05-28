@@ -1,68 +1,201 @@
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
-import { getRedirectResult, signInWithRedirect } from "firebase/auth";
-import { auth, provider } from "../firebase";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-/** Continue with Google — verifies token on backend */
+import {
+  getRedirectResult,
+  signInWithRedirect,
+} from "firebase/auth";
+
+import {
+  auth,
+  provider,
+} from "../firebase";
+import api from "../services/api";
+
+/* Continue with Google using Firebase redirect flow */
 function GoogleLoginButton() {
-  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // FINAL LOGIN AFTER REDIRECT
 
   const finalizeGoogleLogin = async (idToken) => {
-    const res = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/auth/google`,
-      { credential: idToken }
-    );
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-    localStorage.setItem("token", res.data.accessToken || res.data.token);
-    if (res.data.refreshToken) {
-      localStorage.setItem("refreshToken", res.data.refreshToken);
+
+    try {
+
+      const res = await api.post("/api/auth/google", {
+        credential: idToken,
+      });
+
+      // STORE USER
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
+
+      localStorage.setItem(
+        "token",
+        res.data.accessToken || res.data.token
+      );
+
+      if (res.data.refreshToken) {
+
+        localStorage.setItem(
+          "refreshToken",
+          res.data.refreshToken
+        );
+
+      }
+
+      toast.success("Welcome");
+
+      // REDIRECT
+
+      navigate(
+        res.data.user?.role === "admin"
+          ? "/admin"
+          : "/home",
+        { replace:true }
+      );
+
     }
-    toast.success("Welcome");
-    navigate(res.data.user?.role === "admin" ? "/admin" : "/home");
+
+    catch (err) {
+
+      console.log(err);
+
+      if (err?.response?.status === 404) {
+        toast.error("Google endpoint not found. Verify backend deployment URL and redeploy.");
+        return;
+      }
+
+      toast.error(
+        err.response?.data?.message ||
+        "Google authentication failed"
+      );
+
+    }
+
   };
 
+  // HANDLE REDIRECT RESULT
+
   useEffect(() => {
+
     const resolveRedirect = async () => {
+
       try {
-        const result = await getRedirectResult(auth);
+
+        setLoading(true);
+
+        const result =
+          await getRedirectResult(auth);
+
         if (result?.user) {
-          setLoading(true);
-          const idToken = await result.user.getIdToken();
+
+          const idToken =
+            await result.user.getIdToken();
+
           await finalizeGoogleLogin(idToken);
+
         }
-      } catch (err) {
-        console.log(err);
-        toast.error("Google sign-in failed");
-      } finally {
-        setLoading(false);
+
       }
+
+      catch (err) {
+
+        console.log(err);
+
+        toast.error(
+          "Google sign-in failed"
+        );
+
+      }
+
+      finally {
+
+        setLoading(false);
+
+      }
+
     };
+
     resolveRedirect();
+
   }, []);
 
+  // START GOOGLE LOGIN
+
   const handleFirebaseGoogleLogin = async () => {
+
     try {
+
       setLoading(true);
-      await signInWithRedirect(auth, provider);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Google login failed");
-      setLoading(false);
+
+      await signInWithRedirect(
+        auth,
+        provider
+      );
+
     }
+
+    catch (err) {
+
+      console.log(err);
+
+      if (err?.code === "auth/unauthorized-domain") {
+        toast.error("Add this domain in Firebase Authorized domains and retry.");
+        setLoading(false);
+        return;
+      }
+
+      toast.error(
+        err.response?.data?.message ||
+        "Google login failed"
+      );
+
+      setLoading(false);
+
+    }
+
   };
 
   return (
+
     <button
       type="button"
       onClick={handleFirebaseGoogleLogin}
       disabled={loading}
-      className="w-full mt-2 border border-[#d7b89a] bg-white/80 hover:bg-white text-[#5a4030] py-3 rounded-full font-semibold transition"
+      className="
+        w-full
+        mt-2
+        border
+        border-[#d7b89a]
+        bg-white/80
+        hover:bg-white
+        text-[#5a4030]
+        py-3
+        rounded-full
+        font-semibold
+        transition
+      "
     >
-      {loading ? "Connecting..." : "Continue with Google"}
+
+      {
+        loading
+        ?
+        "Connecting..."
+        :
+        "Continue with Google"
+      }
+
     </button>
+
   );
+
 }
 
 export default GoogleLoginButton;

@@ -5,12 +5,13 @@ import AdminNavbar from "../components/AdminNavbar";
 import PageShell from "../components/PageShell";
 import api from "../services/api";
 import { FaFire, FaBullseye, FaMedal, FaChartLine, FaCode, FaDesktop, FaTrophy } from "react-icons/fa";
+import dashboardVideo from "../assets/dashboardvid.mp4";
 
-/** User home — layout per design reference (image 2) */
+/* User home page showing current stats and quick actions */
 function Home() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const [stats, setStats] = useState({ solvedCount: 0, rating: 800, accuracy: 0, streakDays: 0 });
+  const [stats, setStats] = useState({ solvedCount: 0, rating: 0, accuracy: 0, streakDays: 0 });
 
   useEffect(() => {
     if (user?._id && user?.role !== "admin") {
@@ -108,6 +109,16 @@ function Home() {
               </span>
             </div>
           ))}
+          <div className="sm:col-span-2 xl:col-span-1 bg-white dark:bg-[#2a211c] rounded-[28px] p-4 shadow-lg border border-[#ead8c9]/40 dark:border-white/10">
+            <video
+              src={dashboardVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-[330px] object-cover rounded-[20px]"
+            />
+          </div>
         </div>
 
         <div className="mt-10 bg-[#fff9f4] dark:bg-[#2a211c] border border-[#ead8c9] dark:border-white/10 rounded-2xl px-6 py-4 flex flex-wrap justify-between items-center gap-4">

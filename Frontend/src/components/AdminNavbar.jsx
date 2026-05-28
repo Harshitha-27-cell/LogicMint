@@ -32,7 +32,7 @@ function AdminNavbar() {
               src={logo}
               alt="LogicMint"
               className="w-11 h-11 rounded-full border-2 border-[#8b5e3c]/30 object-cover bg-black"
-              style={{ objectPosition: "10% center" }}
+              style={{ objectPosition: "center center" }}
             />
             <span className="text-xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4]">
               LogicMint Admin
