@@ -84,9 +84,6 @@ function Home() {
                 <span className="bg-white/15 backdrop-blur px-4 py-2 rounded-full flex items-center gap-2 text-sm">
                   <FaMedal /> {stats.rating} Current Rating
                 </span>
-                <span className="bg-white/15 backdrop-blur px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                  <FaChartLine /> Top 23% Global Rank
-                </span>
               </div>
             </div>
             <div className="text-8xl hidden lg:flex opacity-90 w-40 h-40 rounded-full bg-white/10 items-center justify-center">

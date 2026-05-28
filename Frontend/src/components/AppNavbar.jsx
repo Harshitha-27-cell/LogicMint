@@ -49,7 +49,8 @@ function AppNavbar({ admin = false }) {
             <img
               src={logo}
               alt="LogicMint"
-              className="w-11 h-11 rounded-full object-cover object-center border-2 border-[#8b5e3c]/30 group-hover:scale-105 transition bg-black"
+              className="w-11 h-11 rounded-full object-cover border-2 border-[#8b5e3c]/30 group-hover:scale-105 transition bg-black"
+              style={{ objectPosition: "10% center" }}
             />
             <span className="text-xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4] hidden sm:block">
               LogicMint

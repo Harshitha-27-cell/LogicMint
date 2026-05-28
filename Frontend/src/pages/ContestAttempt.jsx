@@ -84,6 +84,11 @@ function ContestAttempt() {
 
   const runSubmit = async () => {
     if (!currentQuestion) return;
+    const contestEnded = new Date(contest?.endTime) < new Date();
+    if (contestEnded) {
+      toast.error("Time is up. Submission is closed for this contest.");
+      return;
+    }
     const lang = currentQuestion.language || "python";
     const langId = LANG_MAP[lang]?.id || 71;
     try {

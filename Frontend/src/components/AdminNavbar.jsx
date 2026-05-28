@@ -28,7 +28,12 @@ function AdminNavbar() {
             onClick={() => navigate("/admin")}
             className="flex items-center gap-3"
           >
-            <img src={logo} alt="LogicMint" className="w-11 h-11 rounded-xl border-2 border-[#8b5e3c]/30" />
+            <img
+              src={logo}
+              alt="LogicMint"
+              className="w-11 h-11 rounded-full border-2 border-[#8b5e3c]/30 object-cover bg-black"
+              style={{ objectPosition: "10% center" }}
+            />
             <span className="text-xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4]">
               LogicMint Admin
             </span>
@@ -45,6 +50,12 @@ function AdminNavbar() {
               className="flex items-center gap-2 font-semibold text-[#5a4030] dark:text-[#d4c4b8] hover:text-[#8b5e3c]"
             >
               <FaTrophy /> Create Contest
+            </button>
+            <button
+              onClick={() => navigate("/admin/contests")}
+              className="flex items-center gap-2 font-semibold text-[#5a4030] dark:text-[#d4c4b8] hover:text-[#8b5e3c]"
+            >
+              <FaTrophy /> Contest History
             </button>
           </nav>
         </div>

@@ -11,6 +11,28 @@ from "../Models/QuestionModel.js";
 
 const contestApp=exp.Router();
 
+function enrichContest(contestDoc, now = new Date()) {
+  const c = contestDoc.toObject ? contestDoc.toObject() : contestDoc;
+  const startTime = new Date(c.startTime);
+  const endTime = new Date(c.endTime);
+  const isLive = startTime <= now && endTime >= now;
+  const isEnded = endTime < now;
+  const timeLeftMs = Math.max(0, endTime - now);
+  const h = Math.floor(timeLeftMs / 3600000);
+  const m = Math.floor((timeLeftMs % 3600000) / 60000);
+  const s = Math.floor((timeLeftMs % 60000) / 1000);
+
+  return {
+    ...c,
+    isLive,
+    isEnded,
+    status: isLive ? "LIVE" : isEnded ? "ENDED" : "UPCOMING",
+    timeLeft: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
+    questionCount: c.questions?.length || 0,
+    participantCount: c.participants?.length || 0
+  };
+}
+
 
 // CREATE CONTEST
 
@@ -111,22 +133,7 @@ const contests = await Contest.find({
   .populate("questions.questionId")
   .sort({ startTime: 1 });
 
-const enriched = contests.map((c) => {
-  const doc = c.toObject();
-  const isLive = c.startTime <= now && c.endTime >= now;
-  const timeLeftMs = Math.max(0, c.endTime - now);
-  const h = Math.floor(timeLeftMs / 3600000);
-  const m = Math.floor((timeLeftMs % 3600000) / 60000);
-  const s = Math.floor((timeLeftMs % 60000) / 1000);
-  return {
-    ...doc,
-    isLive,
-    status: isLive ? "LIVE" : c.startTime > now ? "UPCOMING" : "ENDED",
-    timeLeft: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
-    questionCount: c.questions?.length || 0,
-    participantCount: c.participants?.length || 0
-  };
-});
+const enriched = contests.map((c) => enrichContest(c, now));
 
 res.send(enriched);
 
@@ -140,6 +147,78 @@ console.log(err);
 
 }
 
+);
+
+
+// PREVIOUS CONTESTS FOR USER
+
+contestApp.get(
+"/previous/:userId",
+async(req,res)=>{
+try{
+const now = new Date();
+const contests = await Contest.find({
+  released:true,
+  endTime:{ $lt: now }
+})
+.populate("questions.questionId")
+.sort({ endTime:-1 });
+
+const userId = new mongoose.Types.ObjectId(req.params.userId);
+const submissions = await ContestSubmission.aggregate([
+  { $match: { userId } },
+  {
+    $group: {
+      _id: "$contestId",
+      score: { $sum: "$score" },
+      solved: { $sum: 1 }
+    }
+  }
+]);
+
+const byContest = new Map(
+  submissions.map((s) => [s._id.toString(), s])
+);
+
+const payload = contests.map((c) => {
+  const base = enrichContest(c, now);
+  const sub = byContest.get(c._id.toString());
+  return {
+    ...base,
+    attempted: !!sub,
+    userScore: sub?.score || 0,
+    solvedCount: sub?.solved || 0
+  };
+});
+
+res.send(payload);
+}catch(err){
+console.log(err);
+res.status(500).send({ message:"Unable to fetch previous contests" });
+}
+}
+);
+
+
+// PREVIOUS CONTESTS FOR ADMIN
+contestApp.get(
+"/previous-admin",
+async(req,res)=>{
+try{
+const now = new Date();
+const contests = await Contest.find({
+  released:true,
+  endTime:{ $lt: now }
+})
+.populate("questions.questionId")
+.sort({ endTime:-1 });
+
+res.send(contests.map((c)=>enrichContest(c, now)));
+}catch(err){
+console.log(err);
+res.status(500).send({ message:"Unable to fetch admin contest history" });
+}
+}
 );
 
 
@@ -310,12 +389,21 @@ async(req,res)=>{
 
 try{
 
-const submission=
-
-await ContestSubmission.create(
-
-req.body
-
+const submission = await ContestSubmission.findOneAndUpdate(
+  {
+    contestId:req.body.contestId,
+    userId:req.body.userId,
+    questionId:req.body.questionId
+  },
+  {
+    ...req.body,
+    submittedAt:new Date(),
+    status:"Attempted"
+  },
+  {
+    upsert:true,
+    new:true
+  }
 );
 
 res.send(submission);

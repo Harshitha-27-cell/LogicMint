@@ -7,8 +7,6 @@ type:String,
 required:true
 },
 
-description:String,
-
 startTime:Date,
 
 endTime:Date,
@@ -58,7 +56,7 @@ type:String,
 default:""
 }
 
-});
+},{ timestamps:true });
 
 export default mongoose.model(
 "Contest",

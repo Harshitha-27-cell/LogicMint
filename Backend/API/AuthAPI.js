@@ -51,8 +51,8 @@ async function sendResetEmail(toEmail, resetToken) {
   const resetLink =
     `${frontendUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(toEmail)}`;
 
-  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-  const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+  const smtpUser = (process.env.SMTP_USER || process.env.EMAIL_USER || "").trim();
+  const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || "").trim();
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || 587);
   const smtpFrom =

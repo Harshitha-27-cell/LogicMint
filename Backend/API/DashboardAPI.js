@@ -34,7 +34,7 @@ dashboardApp.get("/", verifyToken, async (req, res) => {
           )
         : 0;
 
-    const rating = 800 + solvedCount * 25 + accuracy * 2;
+    const rating = solvedCount * 25 + accuracy * 2;
 
     const contestHistory = await ContestSubmission.find({ userId })
       .sort({ submittedAt: -1 })

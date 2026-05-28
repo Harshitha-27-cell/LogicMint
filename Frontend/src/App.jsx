@@ -13,6 +13,7 @@ import CoursePage from "./pages/CoursePage";
 import ProblemPage from "./pages/ProblemPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import CreateContest from "./pages/CreateContest";
+import AdminContestHistory from "./pages/AdminContestHistory";
 import ContestPage from "./pages/ContestPage";
 import ContestAttempt from "./pages/ContestAttempt";
 import UserProfile from "./pages/UserProfile";
@@ -127,6 +128,14 @@ function App() {
           element={
             <AdminRoute>
               <Loader><AdminDashboard /></Loader>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/contests"
+          element={
+            <AdminRoute>
+              <AdminContestHistory />
             </AdminRoute>
           }
         />

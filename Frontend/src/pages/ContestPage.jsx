@@ -15,8 +15,10 @@ import toast from "react-hot-toast";
 /** Live contests — layout per design reference (image 3) */
 function ContestPage() {
   const [contests, setContests] = useState([]);
+  const [previousContests, setPreviousContests] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     fetchContests();
@@ -26,8 +28,12 @@ function ContestPage() {
 
   const fetchContests = async () => {
     try {
-      const res = await api.get("/contest-api/active");
-      setContests(res.data || []);
+      const [activeRes, previousRes] = await Promise.all([
+        api.get("/contest-api/active"),
+        api.get(`/contest-api/previous/${user._id}`)
+      ]);
+      setContests(activeRes.data || []);
+      setPreviousContests(previousRes.data || []);
     } catch {
       toast.error("Failed to load contests");
     } finally {
@@ -130,6 +136,41 @@ function ContestPage() {
             </div>
           ))
         )}
+
+        <section className="mt-10">
+          <h2 className="text-3xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4]">Previous Contests</h2>
+          {previousContests.length === 0 ? (
+            <div className="mt-4 p-6 rounded-2xl bg-white dark:bg-[#2a211c] text-gray-500">
+              No previous contests yet.
+            </div>
+          ) : (
+            <div className="mt-4 grid gap-4">
+              {previousContests.map((contest) => (
+                <div
+                  key={contest._id}
+                  className="p-6 rounded-3xl bg-white dark:bg-[#2a211c] border border-[#ead8c9]/60 dark:border-white/10 shadow-lg"
+                >
+                  <div className="flex flex-wrap justify-between items-center gap-3">
+                    <h3 className="text-2xl font-bold text-[#8b5e3c]">{contest.title}</h3>
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100">
+                      Time Up
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Start: {formatDate(contest.startTime)} | End: {formatDate(contest.endTime)}
+                  </p>
+                  <p className="text-sm mt-2">
+                    Status:{" "}
+                    <span className={contest.attempted ? "text-green-600 font-semibold" : "text-red-500 font-semibold"}>
+                      {contest.attempted ? "Attempted" : "Not Attempted"}
+                    </span>
+                    {contest.attempted && ` | Score: ${contest.userScore}`}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <div className="mt-10 bg-[#fff9f4] dark:bg-[#2a211c] border-2 border-[#ead8c9] dark:border-white/10 rounded-2xl px-6 py-5 flex items-center gap-3">
           <FaStar className="text-amber-500 text-xl shrink-0" />

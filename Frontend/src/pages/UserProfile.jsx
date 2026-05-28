@@ -139,9 +139,6 @@ function UserProfile() {
                   <h1 className="text-4xl font-bold">{profile?.username}</h1>
                 )}
                 <p className="mt-1 text-white/85">{profile?.email}</p>
-                <p className="mt-3 text-white/90 max-w-xl">
-                  Passionate about solving problems and building production-ready projects.
-                </p>
                 <p className="mt-3 text-sm text-white/85">Member since {joinedAt}</p>
                 {editing && (
                   <input
@@ -245,7 +242,6 @@ function UserProfile() {
                         <p className="text-xs text-gray-500">{path.topics}</p>
                       </div>
                     </div>
-                    <button className="text-xs px-3 py-2 rounded-lg bg-[#8b5e3c] text-white">Open</button>
                   </div>
                   <div className="mt-3 flex items-center gap-3">
                     <div className="flex-1 h-2 rounded-full bg-[#ead8c9] dark:bg-[#3a2f28] overflow-hidden">
