@@ -28,6 +28,11 @@ type:String,
 default:"Attempted"
 },
 
+submittedCode:{
+type:String,
+default:""
+},
+
 submittedAt:{
 type:Date,
 default:Date.now

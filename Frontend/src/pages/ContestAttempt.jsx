@@ -22,6 +22,7 @@ function ContestAttempt() {
   const [output, setOutput] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
   const [leaderboard, setLeaderboard] = useState([]);
+  const [mySubmissions, setMySubmissions] = useState([]);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
@@ -55,6 +56,7 @@ function ContestAttempt() {
       const lang = q?.language || "python";
       setCode(LANG_MAP[lang]?.template || "");
       fetchLeaderboard();
+      fetchMySubmissions();
     } catch {
       toast.error("Contest not found");
     }
@@ -75,6 +77,15 @@ function ContestAttempt() {
     try {
       const res = await api.get(`/contest-api/leaderboard/${id}`);
       setLeaderboard(res.data || []);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const fetchMySubmissions = async () => {
+    try {
+      const res = await api.get(`/contest-api/submissions/${id}/${user._id}`);
+      setMySubmissions(res.data || []);
     } catch (e) {
       console.log(e);
     }
@@ -108,6 +119,7 @@ function ContestAttempt() {
         });
         toast.success("Accepted!");
         fetchLeaderboard();
+        fetchMySubmissions();
       } else {
         setOutput(
           res.data.failedCase
@@ -132,8 +144,8 @@ function ContestAttempt() {
   return (
     <div className="min-h-screen bg-[#f6f2ed] dark:bg-[#1a1410]">
       <Navbar />
-      <div className="flex h-[calc(100vh-80px)]">
-        <div className="w-64 bg-white dark:bg-[#2a211c] p-4 overflow-y-auto">
+      <div className="grid lg:grid-cols-[280px_1fr] h-auto lg:h-[calc(100vh-80px)]">
+        <div className="bg-white dark:bg-[#2a211c] p-4 overflow-y-auto">
           <div className="text-[#8b5e3c] font-bold text-xl mb-2">{contest.title}</div>
           <div className="text-red-600 font-mono text-lg mb-4">Time Left: {timeLeft}</div>
           {contest.questions?.map((q, i) => (
@@ -191,6 +203,30 @@ function ContestAttempt() {
             >
               Exit
             </button>
+          </div>
+
+          <div className="mt-5 bg-white dark:bg-[#2a211c] rounded-xl p-4 border border-[#ead8c9]/60 dark:border-white/10">
+            <h3 className="font-bold text-[#8b5e3c] mb-3">Your Submitted Answers</h3>
+            {mySubmissions.length === 0 ? (
+              <p className="text-sm text-gray-500">No submissions yet for this contest.</p>
+            ) : (
+              <div className="space-y-3 max-h-56 overflow-auto">
+                {mySubmissions.map((s) => (
+                  <div key={s._id} className="rounded-xl bg-[#faf7f2] dark:bg-[#1a1410] p-3 border border-[#ead8c9]/40 dark:border-white/10">
+                    <div className="flex flex-wrap justify-between gap-2 text-sm">
+                      <p className="font-semibold text-[#5d3820] dark:text-[#e8d5c4]">{s.questionTitle}</p>
+                      <p className="text-xs text-gray-500">{new Date(s.submittedAt).toLocaleString()}</p>
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                      Language: {s.language} | Score: {s.score} | Status: {s.status}
+                    </p>
+                    <pre className="mt-2 text-xs bg-black text-green-300 rounded-lg p-2 overflow-auto">
+                      {s.submittedCode || "No code captured"}
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -10,7 +10,6 @@ FaEye,
 FaEyeSlash
 }
 from "react-icons/fa";
-import GoogleLoginButton from "../components/GoogleLoginButton";
 
 function Login() {
 
@@ -479,14 +478,6 @@ Login
 
 </button>
 
-<div className="flex items-center gap-4 my-6">
-<span className="flex-1 h-px bg-[#ead8c9]" />
-<span className="text-sm text-gray-500">or</span>
-<span className="flex-1 h-px bg-[#ead8c9]" />
-</div>
-
-<GoogleLoginButton />
-
 <p
 
 className="
@@ -526,6 +517,12 @@ Signup
 </Link>
 
 </p>
+
+<div className="mt-6 p-4 rounded-2xl bg-[#f7ede3] text-[#6a4a35] text-sm">
+<p className="font-semibold">Admin Login</p>
+<p>Email: admin@logicmint.com</p>
+<p>Password: LogicMint123</p>
+</div>
 
 </form>
 

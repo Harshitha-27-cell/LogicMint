@@ -222,6 +222,93 @@ res.status(500).send({ message:"Unable to fetch admin contest history" });
 }
 );
 
+// USER SUBMISSIONS FOR A CONTEST
+contestApp.get(
+"/submissions/:contestId/:userId",
+async(req,res)=>{
+try{
+const { contestId, userId } = req.params;
+const submissions = await ContestSubmission.find({
+  contestId,
+  userId
+})
+.populate("questionId", "title language")
+.sort({ submittedAt: -1 });
+
+res.send(submissions.map((s)=>({
+  _id: s._id,
+  questionId: s.questionId?._id,
+  questionTitle: s.questionId?.title || "Question",
+  language: s.questionId?.language || "python",
+  score: s.score || 0,
+  status: s.status || "Attempted",
+  submittedCode: s.submittedCode || "",
+  submittedAt: s.submittedAt
+})));
+}catch(err){
+console.log(err);
+res.status(500).send({ message:"Unable to fetch submissions" });
+}
+}
+);
+
+// ADMIN VIEW OF PARTICIPANTS AND SUBMITTED ANSWERS
+contestApp.get(
+"/admin/submissions/:contestId",
+async(req,res)=>{
+try{
+const { contestId } = req.params;
+const contest = await Contest.findById(contestId).select("title");
+if(!contest){
+  return res.status(404).send({ message:"Contest not found" });
+}
+
+const submissions = await ContestSubmission.find({ contestId })
+  .populate("userId", "username email")
+  .populate("questionId", "title language")
+  .sort({ submittedAt: -1 });
+
+const grouped = new Map();
+for (const s of submissions) {
+  const uid = s.userId?._id?.toString() || "unknown";
+  if (!grouped.has(uid)) {
+    grouped.set(uid, {
+      userId: uid,
+      username: s.userId?.username || "Unknown User",
+      email: s.userId?.email || "",
+      totalScore: 0,
+      answers: []
+    });
+  }
+  const g = grouped.get(uid);
+  g.totalScore += Number(s.score || 0);
+  g.answers.push({
+    submissionId: s._id,
+    questionTitle: s.questionId?.title || "Question",
+    language: s.questionId?.language || "python",
+    score: s.score || 0,
+    status: s.status || "Attempted",
+    submittedCode: s.submittedCode || "",
+    submittedAt: s.submittedAt
+  });
+}
+
+const participants = Array.from(grouped.values())
+  .sort((a,b)=>b.totalScore-a.totalScore);
+
+res.send({
+  contestId,
+  contestTitle: contest.title,
+  participantCount: participants.length,
+  participants
+});
+}catch(err){
+console.log(err);
+res.status(500).send({ message:"Unable to fetch admin submissions" });
+}
+}
+);
+
 
 // LEADERBOARD (before /:id to avoid route conflict)
 
@@ -397,7 +484,11 @@ const submission = await ContestSubmission.findOneAndUpdate(
     questionId:req.body.questionId
   },
   {
-    ...req.body,
+    contestId:req.body.contestId,
+    userId:req.body.userId,
+    questionId:req.body.questionId,
+    score:req.body.score || 0,
+    submittedCode:req.body.code || "",
     submittedAt:new Date(),
     status:"Attempted"
   },
