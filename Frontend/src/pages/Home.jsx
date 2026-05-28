@@ -27,13 +27,6 @@ function Home() {
       icon: <FaCode />
     },
     {
-      title: "Dashboard",
-      desc: "View your progress, stats, ratings & activity.",
-      btn: "View Dashboard",
-      path: "/dashboard",
-      icon: <FaChartLine />
-    },
-    {
       title: "Compiler",
       desc: "Write, run and test your code instantly.",
       btn: "Open Compiler",

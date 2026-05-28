@@ -29,6 +29,7 @@ password: ""
 
 const gmailRegex=/^[A-Za-z][A-Za-z0-9]{4,}@gmail\.com$/;
 const passwordRegex=/^(?=(?:.*[A-Za-z]){3,})(?=(?:.*[0-9]){3,})(?=(?:.*[!@#$%^&*]){1,}).+$/;
+const adminEmail="admin@logicmint.com";
 
 useEffect(()=>{
 if(location.state?.message){
@@ -56,12 +57,12 @@ const handleLogin = async (e) => {
 
 e.preventDefault();
 
-if(!gmailRegex.test(user.email)){
+if(user.email!==adminEmail && !gmailRegex.test(user.email)){
 toast.error("Enter a valid Gmail address in the required format.");
 return;
 }
 
-if(!passwordRegex.test(user.password)){
+if(user.email!==adminEmail && !passwordRegex.test(user.password)){
 toast.error("Password must include at least 3 letters, 3 numbers and 1 special character.");
 return;
 }

@@ -22,6 +22,7 @@ profilePic:""
 });
 
 const gmailRegex=/^[A-Za-z][A-Za-z0-9]{4,}@gmail\.com$/;
+const usernameRegex=/^[A-Za-z][A-Za-z0-9!@#$%^&*._-]{3,}$/;
 
 
 const handleChange=(e)=>{
@@ -83,6 +84,13 @@ setMessage(
 
 return;
 
+}
+
+if(!usernameRegex.test(user.username)){
+setMessage(
+"Username must start with a letter and be at least 4 characters long."
+);
+return;
 }
 
 if(!gmailRegex.test(user.email)){

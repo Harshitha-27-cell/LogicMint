@@ -15,7 +15,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CreateContest from "./pages/CreateContest";
 import ContestPage from "./pages/ContestPage";
 import ContestAttempt from "./pages/ContestAttempt";
-import UserDashboard from "./pages/UserDashboard";
 import UserProfile from "./pages/UserProfile";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import AIAssistant from "./pages/AIAssistant";
@@ -40,14 +39,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Loader><Home /></Loader>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <UserDashboard />
             </ProtectedRoute>
           }
         />

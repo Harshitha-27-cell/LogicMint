@@ -124,28 +124,57 @@ dashboardApp.get("/", verifyToken, async (req, res) => {
       });
     }
 
-    const learningPaths = [
+    const courseDefs = [
       {
-        title: "Data Structures and Algorithms",
-        topics: "Arrays, Linked List, Stack, Queue and more",
-        progress: Math.min(100, Math.round((solvedCount / Math.max(totalProblems, 1)) * 100))
+        language: "cpp",
+        title: "Practice C++",
+        topics: "Core syntax, STL basics, problem solving"
       },
       {
-        title: "Web Development Basics",
-        topics: "HTML, CSS, JavaScript, DOM and more",
-        progress: Math.min(100, Math.max(10, Math.round(accuracy * 0.6)))
+        language: "python",
+        title: "Practice Python",
+        topics: "Functions, loops, data structures"
       },
       {
-        title: "Database Fundamentals",
-        topics: "SQL, Joins, Normalization, Queries",
-        progress: Math.min(100, Math.max(5, Math.round((contestHistory.length || 0) * 8)))
+        language: "java",
+        title: "Practice Java",
+        topics: "OOP, collections, algorithmic practice"
       },
       {
-        title: "Problem Solving",
-        topics: "Logic Building, Patterns, Practice",
-        progress: Math.min(100, Math.max(8, Math.round(rating / 25)))
+        language: "c",
+        title: "Practice C",
+        topics: "Pointers, arrays, memory fundamentals"
+      },
+      {
+        language: "javascript",
+        title: "Practice JavaScript",
+        topics: "Logic, arrays, strings, async basics"
       }
     ];
+
+    const learningPaths = [];
+    for (const course of courseDefs) {
+      const languageQuestions = await QuestionModel.find({
+        language: course.language
+      }).select("_id");
+      const qIds = languageQuestions.map((q) => q._id);
+      const solvedForLanguage = await Submission.countDocuments({
+        userId,
+        status: "Solved",
+        questionId: { $in: qIds }
+      });
+      const total = qIds.length;
+      const progress =
+        total > 0 ? Math.round((solvedForLanguage / total) * 100) : 0;
+
+      learningPaths.push({
+        title: course.title,
+        topics: course.topics,
+        solved: solvedForLanguage,
+        total,
+        progress
+      });
+    }
 
     res.send({
       user,

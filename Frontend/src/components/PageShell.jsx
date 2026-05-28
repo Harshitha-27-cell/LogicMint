@@ -14,7 +14,9 @@ function PageShell({ children, className = "" }) {
     "/signup",
     "/forgot-password",
     "/reset-password",
-    "/ai-assistant"
+    "/ai-assistant",
+    "/admin",
+    "/contest"
   ];
 
   const showFab = !hideFabPaths.includes(location.pathname);

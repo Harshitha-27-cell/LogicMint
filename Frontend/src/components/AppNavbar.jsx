@@ -7,12 +7,10 @@ import api from "../services/api";
 
 const navLinks = [
   { to: "/home", label: "Home" },
-  { to: "/dashboard", label: "Dashboard" },
   { to: "/practice", label: "Practice" },
   { to: "/compiler", label: "Compiler" },
   { to: "/contest-page", label: "Contest" },
-  { to: "/leaderboard", label: "Leaderboard" },
-  { to: "/ai-assistant", label: "AI" }
+  { to: "/leaderboard", label: "Leaderboard" }
 ];
 
 /** Shared navbar with logo.png — used on all authenticated pages */
@@ -51,7 +49,7 @@ function AppNavbar({ admin = false }) {
             <img
               src={logo}
               alt="LogicMint"
-              className="w-11 h-11 rounded-xl object-contain border-2 border-[#8b5e3c]/30 group-hover:scale-105 transition"
+              className="w-11 h-11 rounded-full object-cover object-center border-2 border-[#8b5e3c]/30 group-hover:scale-105 transition bg-black"
             />
             <span className="text-xl font-bold text-[#8b5e3c] dark:text-[#e8d5c4] hidden sm:block">
               LogicMint

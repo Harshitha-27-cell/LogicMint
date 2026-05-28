@@ -29,19 +29,47 @@ const SIDEBAR_ITEMS = [
 
 /** AI Assistant — layout per design reference (image 5) */
 function AIAssistant() {
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content:
-        "Hi! I am your LogicMint AI assistant. Ask me about practice problems, contests, DSA concepts, or how to use the platform. How can I help you today?"
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const storageKey = `logicmint_ai_chat_${user?._id || "guest"}`;
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        /* ignore parse error and use default greeting */
+      }
     }
-  ]);
+    return [
+      {
+        role: "assistant",
+        content:
+          "Hi! I am your LogicMint AI assistant. Ask me about practice problems, contests, DSA concepts, or how to use the platform. How can I help you today?"
+      }
+    ];
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(messages));
+  }, [messages, storageKey]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
+    if (!messages?.length) {
+      setMessages([
+        {
+          role: "assistant",
+          content:
+            "Hi! I am your LogicMint AI assistant. Ask me about practice problems, contests, DSA concepts, or how to use the platform. How can I help you today?"
+        }
+      ]);
+    }
   }, [messages]);
 
   const sendMessage = async (text) => {

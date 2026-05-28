@@ -12,6 +12,7 @@ const ADMIN_EMAIL = "admin@logicmint.com";
 const ADMIN_PASSWORD = "LogicMint123";
 
 const GMAIL_REGEX = /^[A-Za-z][A-Za-z0-9]{4,}@gmail\.com$/;
+const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9!@#$%^&*._-]{3,}$/;
 
 const PASSWORD_REGEX =
   /^(?=(?:.*[A-Za-z]){3,})(?=(?:.*\d){3,})(?=(?:.*[!@#$%^&*]){1,}).+$/;
@@ -50,8 +51,12 @@ async function sendResetEmail(toEmail, resetToken) {
   const resetLink =
     `${frontendUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(toEmail)}`;
 
-  const smtpUser = process.env.EMAIL_USER;
-  const smtpPass = process.env.EMAIL_PASS;
+  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = Number(process.env.SMTP_PORT || 587);
+  const smtpFrom =
+    process.env.SMTP_FROM || `LogicMint Support <${smtpUser || "no-reply@logicmint.com"}>`;
 
   console.log({
     smtpUser,
@@ -68,20 +73,27 @@ async function sendResetEmail(toEmail, resetToken) {
     };
   }
 
-  const transporter = nodemailer.createTransport({
-
-    service: "gmail",
-
-    auth: {
-      user: smtpUser,
-      pass: smtpPass,
-    },
-
-  });
+  const transporter = smtpHost
+    ? nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      })
+    : nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      });
 
   await transporter.sendMail({
 
-    from: `LogicMint Support <${smtpUser}>`,
+    from: smtpFrom,
 
     to: toEmail,
 
@@ -163,6 +175,13 @@ authApp.post("/register", async (req, res) => {
       });
     }
 
+    if (!USERNAME_REGEX.test((username || "").trim())) {
+      return res.status(400).send({
+        message:
+          "Username must start with a letter and be at least 4 characters long. It can contain letters, numbers and symbols.",
+      });
+    }
+
     if (!validatePasswordPolicy(password)) {
       return res.status(400).send({
         message:
@@ -213,18 +232,6 @@ authApp.post("/login", async (req, res) => {
 
     const { email, password } = req.body;
 
-    if (!validateGmail(email)) {
-      return res.status(400).send({
-        message: "Invalid Gmail address",
-      });
-    }
-
-    if (!validatePasswordPolicy(password)) {
-      return res.status(400).send({
-        message: "Invalid password format",
-      });
-    }
-
     /* ===== ADMIN ===== */
 
     if (
@@ -253,6 +260,18 @@ authApp.post("/login", async (req, res) => {
           role: "admin",
           admin: true,
         },
+      });
+    }
+
+    if (!validateGmail(email)) {
+      return res.status(400).send({
+        message: "Invalid Gmail address",
+      });
+    }
+
+    if (!validatePasswordPolicy(password)) {
+      return res.status(400).send({
+        message: "Invalid password format",
       });
     }
 
@@ -399,6 +418,44 @@ authApp.get(
   }
 );
 
+authApp.patch(
+  "/me",
+  verifyToken,
+  async (req, res) => {
+    try {
+      const { username, profilePic } = req.body;
+      const updates = {};
+
+      if (typeof username === "string" && username.trim()) {
+        if (!USERNAME_REGEX.test(username.trim())) {
+          return res.status(400).send({
+            message:
+              "Username must start with a letter and be at least 4 characters long.",
+          });
+        }
+        updates.username = username.trim();
+      }
+
+      if (typeof profilePic === "string") {
+        updates.profilePic = profilePic.trim();
+      }
+
+      const user = await UserModel.findByIdAndUpdate(
+        req.user.id,
+        updates,
+        { new: true }
+      ).select("_id username email profilePic role createdAt isDisabled");
+
+      res.send(user);
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        message: "Unable to update profile",
+      });
+    }
+  }
+);
+
 /* ================= FORGOT / RESET PASSWORD ================= */
 
 authApp.post(
@@ -416,6 +473,11 @@ authApp.post(
       /* ===== RESET PASSWORD ===== */
 
       if (newPassword && resetToken) {
+        if (!validateGmail(email)) {
+          return res.status(400).send({
+            message: "Enter the same valid Gmail address used at signup.",
+          });
+        }
 
         const user =
           await UserModel.findOne({
@@ -458,6 +520,12 @@ authApp.post(
 
       /* ===== SEND RESET EMAIL ===== */
 
+      if (!validateGmail(email)) {
+        return res.status(400).send({
+          message: "Enter a valid Gmail address.",
+        });
+      }
+
       const user =
         await UserModel.findOne({ email });
 
@@ -492,6 +560,94 @@ authApp.post(
 
       res.status(500).send({
         message: "Reset error",
+      });
+    }
+  }
+);
+
+authApp.post(
+  "/google",
+  async (req, res) => {
+    try {
+      const { credential } = req.body;
+      if (!credential) {
+        return res.status(400).send({
+          message: "Google credential required",
+        });
+      }
+
+      const googleRes = await fetch(
+        `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`
+      );
+      const payload = await googleRes.json();
+
+      if (!googleRes.ok || !payload.email) {
+        return res.status(401).send({
+          message: "Invalid Google token",
+        });
+      }
+
+      if (!validateGmail(payload.email)) {
+        return res.status(400).send({
+          message: "Only Gmail accounts are allowed.",
+        });
+      }
+
+      let user = await UserModel.findOne({
+        $or: [{ googleId: payload.sub }, { email: payload.email }],
+      });
+
+      if (!user) {
+        user = await UserModel.create({
+          username: payload.name || payload.email.split("@")[0],
+          email: payload.email,
+          password: await bcrypt.hash(payload.sub + process.env.SECRET_KEY, 10),
+          profilePic: payload.picture || "",
+          googleId: payload.sub,
+          role: "user",
+          isDisabled: false,
+        });
+      } else if (!user.googleId) {
+        user.googleId = payload.sub;
+        if (payload.picture) user.profilePic = payload.picture;
+        await user.save();
+      }
+
+      if (user.isDisabled) {
+        return res.status(403).send({
+          message: "Account disabled",
+        });
+      }
+
+      const accessToken = signAccessToken({
+        id: user._id,
+        role: user.role,
+      });
+      const refreshToken = signRefreshToken({
+        id: user._id,
+      });
+      user.refreshToken = refreshToken;
+      await user.save();
+
+      return res.send({
+        message: "Google login success",
+        accessToken,
+        refreshToken,
+        token: accessToken,
+        user: {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          profilePic: user.profilePic,
+          role: user.role,
+          isDisabled: user.isDisabled,
+          admin: user.role === "admin",
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        message: "Google login failed",
       });
     }
   }
