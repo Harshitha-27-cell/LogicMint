@@ -518,11 +518,7 @@ Signup
 
 </p>
 
-<div className="mt-6 p-4 rounded-2xl bg-[#f7ede3] text-[#6a4a35] text-sm">
-<p className="font-semibold">Admin Login</p>
-<p>Email: admin@logicmint.com</p>
-<p>Password: LogicMint123</p>
-</div>
+
 
 </form>
 
