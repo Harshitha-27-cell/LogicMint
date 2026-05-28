@@ -16,6 +16,8 @@ const GMAIL_REGEX = /^[A-Za-z][A-Za-z0-9]{4,}@gmail\.com$/;
 const PASSWORD_REGEX =
   /^(?=(?:.*[A-Za-z]){3,})(?=(?:.*\d){3,})(?=(?:.*[!@#$%^&*]){1,}).+$/;
 
+/* ================= JWT ================= */
+
 function signAccessToken(payload) {
   return jwt.sign(payload, process.env.SECRET_KEY, {
     expiresIn: "15m",
@@ -28,6 +30,8 @@ function signRefreshToken(payload) {
   });
 }
 
+/* ================= VALIDATIONS ================= */
+
 function validatePasswordPolicy(password) {
   return PASSWORD_REGEX.test(password || "");
 }
@@ -39,31 +43,23 @@ function validateGmail(email) {
 /* ================= EMAIL SENDER ================= */
 
 async function sendResetEmail(toEmail, resetToken) {
+
   const frontendUrl =
     process.env.FRONTEND_URL || "http://localhost:5173";
 
-  const resetLink = `${frontendUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(
-    toEmail
-  )}`;
-
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = Number(process.env.SMTP_PORT || 587);
+  const resetLink =
+    `${frontendUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(toEmail)}`;
 
   const smtpUser = process.env.EMAIL_USER;
   const smtpPass = process.env.EMAIL_PASS;
 
-  const smtpFrom =
-    process.env.SMTP_FROM ||
-    `LogicMint Support <${smtpUser}>`;
-
   console.log({
-    smtpHost,
-    smtpPort,
     smtpUser,
     smtpPassExists: !!smtpPass,
   });
 
-  if (!smtpHost || !smtpUser || !smtpPass) {
+  if (!smtpUser || !smtpPass) {
+
     console.log("SMTP not configured");
 
     return {
@@ -73,19 +69,22 @@ async function sendResetEmail(toEmail, resetToken) {
   }
 
   const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: false,
+
+    service: "gmail",
 
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
+
   });
 
   await transporter.sendMail({
-    from: smtpFrom,
+
+    from: `LogicMint Support <${smtpUser}>`,
+
     to: toEmail,
+
     subject: "Reset your LogicMint password",
 
     html: `
@@ -120,7 +119,7 @@ async function sendResetEmail(toEmail, resetToken) {
         </a>
 
         <p style="margin-top:25px;">
-          If the button doesn't work, open this link:
+          If button doesn't work:
         </p>
 
         <p>
@@ -137,6 +136,8 @@ async function sendResetEmail(toEmail, resetToken) {
     `,
   });
 
+  console.log("Mail sent successfully");
+
   return {
     sent: true,
     resetLink,
@@ -146,13 +147,19 @@ async function sendResetEmail(toEmail, resetToken) {
 /* ================= REGISTER ================= */
 
 authApp.post("/register", async (req, res) => {
+
   try {
-    const { username, email, password, profilePic } = req.body;
+
+    const {
+      username,
+      email,
+      password,
+      profilePic
+    } = req.body;
 
     if (!validateGmail(email)) {
       return res.status(400).send({
-        message:
-          "Use a valid Gmail address.",
+        message: "Use a valid Gmail address.",
       });
     }
 
@@ -163,7 +170,8 @@ authApp.post("/register", async (req, res) => {
       });
     }
 
-    const existing = await UserModel.findOne({ email });
+    const existing =
+      await UserModel.findOne({ email });
 
     if (existing) {
       return res.status(400).send({
@@ -171,7 +179,8 @@ authApp.post("/register", async (req, res) => {
       });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
+    const hashed =
+      await bcrypt.hash(password, 10);
 
     await UserModel.create({
       username,
@@ -185,7 +194,9 @@ authApp.post("/register", async (req, res) => {
     res.send({
       message: "Signup successful",
     });
+
   } catch (err) {
+
     console.log(err);
 
     res.status(500).send({
@@ -197,7 +208,9 @@ authApp.post("/register", async (req, res) => {
 /* ================= LOGIN ================= */
 
 authApp.post("/login", async (req, res) => {
+
   try {
+
     const { email, password } = req.body;
 
     if (!validateGmail(email)) {
@@ -212,19 +225,21 @@ authApp.post("/login", async (req, res) => {
       });
     }
 
+    /* ===== ADMIN ===== */
+
     if (
       email === ADMIN_EMAIL &&
       password === ADMIN_PASSWORD
     ) {
-      const accessToken = signAccessToken({
-        role: "admin",
-      });
 
-      const refreshToken = signRefreshToken({
-        role: "admin",
-      });
+      const accessToken =
+        signAccessToken({ role: "admin" });
+
+      const refreshToken =
+        signRefreshToken({ role: "admin" });
 
       return res.send({
+
         message: "Admin login success",
 
         accessToken,
@@ -241,7 +256,10 @@ authApp.post("/login", async (req, res) => {
       });
     }
 
-    const user = await UserModel.findOne({ email });
+    /* ===== USER ===== */
+
+    const user =
+      await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(404).send({
@@ -255,10 +273,11 @@ authApp.post("/login", async (req, res) => {
       });
     }
 
-    const matched = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const matched =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
 
     if (!matched) {
       return res.status(401).send({
@@ -266,20 +285,23 @@ authApp.post("/login", async (req, res) => {
       });
     }
 
-    const accessToken = signAccessToken({
-      id: user._id,
-      role: user.role,
-    });
+    const accessToken =
+      signAccessToken({
+        id: user._id,
+        role: user.role,
+      });
 
-    const refreshToken = signRefreshToken({
-      id: user._id,
-    });
+    const refreshToken =
+      signRefreshToken({
+        id: user._id,
+      });
 
     user.refreshToken = refreshToken;
 
     await user.save();
 
     res.send({
+
       message: "Login successful",
 
       accessToken,
@@ -296,7 +318,9 @@ authApp.post("/login", async (req, res) => {
         admin: user.role === "admin",
       },
     });
+
   } catch (err) {
+
     console.log(err);
 
     res.status(500).send({
@@ -305,90 +329,170 @@ authApp.post("/login", async (req, res) => {
   }
 });
 
-/* ================= FORGOT / RESET PASSWORD ================= */
+/* ================= LOGOUT ================= */
 
-authApp.post("/reset-password", async (req, res) => {
-  try {
-    const { email, newPassword, resetToken } = req.body;
+authApp.post(
+  "/logout",
+  verifyToken,
+  async (req, res) => {
 
-    /* ===== RESET PASSWORD ===== */
+    try {
 
-    if (newPassword && resetToken) {
-      const user = await UserModel.findOne({
-        email,
-        resetToken,
-        resetTokenExpiry: {
-          $gt: Date.now(),
-        },
+      if (req.user?.id) {
+        await UserModel.findByIdAndUpdate(
+          req.user.id,
+          { refreshToken: "" }
+        );
+      }
+
+      res.send({
+        message: "Logged out",
       });
 
+    } catch (err) {
+
+      res.status(500).send({
+        message: "Logout error",
+      });
+    }
+  }
+);
+
+/* ================= ME ================= */
+
+authApp.get(
+  "/me",
+  verifyToken,
+  async (req, res) => {
+
+    try {
+
+      if (!req.user?.id) {
+        return res.status(401).send({
+          message: "Invalid token",
+        });
+      }
+
+      const user =
+        await UserModel.findById(
+          req.user.id
+        ).select(
+          "_id username email profilePic role createdAt isDisabled"
+        );
+
       if (!user) {
-        return res.status(400).send({
-          message:
-            "Invalid or expired reset token",
+        return res.status(404).send({
+          message: "User not found",
         });
       }
 
-      if (!validatePasswordPolicy(newPassword)) {
-        return res.status(400).send({
-          message:
-            "Password format invalid",
-        });
-      }
+      res.send(user);
 
-      user.password = await bcrypt.hash(
+    } catch (err) {
+
+      console.log(err);
+
+      res.status(500).send({
+        message: "Unable to fetch profile",
+      });
+    }
+  }
+);
+
+/* ================= FORGOT / RESET PASSWORD ================= */
+
+authApp.post(
+  "/reset-password",
+  async (req, res) => {
+
+    try {
+
+      const {
+        email,
         newPassword,
-        10
-      );
+        resetToken
+      } = req.body;
 
-      user.resetToken = "";
-      user.resetTokenExpiry = undefined;
+      /* ===== RESET PASSWORD ===== */
+
+      if (newPassword && resetToken) {
+
+        const user =
+          await UserModel.findOne({
+            email,
+            resetToken,
+            resetTokenExpiry: {
+              $gt: Date.now(),
+            },
+          });
+
+        if (!user) {
+          return res.status(400).send({
+            message:
+              "Invalid or expired reset token",
+          });
+        }
+
+        if (
+          !validatePasswordPolicy(newPassword)
+        ) {
+          return res.status(400).send({
+            message:
+              "Password format invalid",
+          });
+        }
+
+        user.password =
+          await bcrypt.hash(newPassword, 10);
+
+        user.resetToken = "";
+        user.resetTokenExpiry = undefined;
+
+        await user.save();
+
+        return res.send({
+          message:
+            "Password reset successful",
+        });
+      }
+
+      /* ===== SEND RESET EMAIL ===== */
+
+      const user =
+        await UserModel.findOne({ email });
+
+      if (!user) {
+        return res.status(404).send({
+          message: "No such email exists",
+        });
+      }
+
+      const token =
+        crypto.randomBytes(32).toString("hex");
+
+      user.resetToken = token;
+
+      user.resetTokenExpiry =
+        new Date(Date.now() + 3600000);
 
       await user.save();
 
-      return res.send({
-        message:
-          "Password reset successful",
+      const emailResult =
+        await sendResetEmail(email, token);
+
+      res.send({
+        message: emailResult.sent
+          ? "Password reset link sent to your email."
+          : "Email service is not configured.",
+      });
+
+    } catch (err) {
+
+      console.log(err);
+
+      res.status(500).send({
+        message: "Reset error",
       });
     }
-
-    /* ===== SEND RESET EMAIL ===== */
-
-    const user = await UserModel.findOne({ email });
-
-    if (!user) {
-      return res.status(404).send({
-        message: "No such email exists",
-      });
-    }
-
-    const token = crypto
-      .randomBytes(32)
-      .toString("hex");
-
-    user.resetToken = token;
-
-    user.resetTokenExpiry = new Date(
-      Date.now() + 3600000
-    );
-
-    await user.save();
-
-    const emailResult = await sendResetEmail(
-      email,
-      token
-    );
-
-    res.send({
-      message: emailResult.sent
-        ? "Password reset link sent to your email."
-        : "Email service is not configured.",
-    });
-  } catch (err) {
-    console.log(err);
-
-    res.status(500).send({
-      message: "Reset error",
-    });
   }
-});
+);
