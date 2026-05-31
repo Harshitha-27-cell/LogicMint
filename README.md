@@ -1,4 +1,4 @@
-# LogicMint Competitive Coding Platform
+# LogicMint Coding Platform
 
 LogicMint is a full-stack coding platform built with the MERN stack.  
 It supports secure authentication, coding practice, timed contests, rankings, an AI assistant, and admin management tools.
