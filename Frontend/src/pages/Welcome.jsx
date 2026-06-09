@@ -37,7 +37,7 @@ function Welcome() {
               <li>Practice coding challenges</li>
               <li>Participate in live contests</li>
               <li>AI-powered doubt clearing</li>
-              <li>Track progress & earn badges</li>
+              <li>Track progress</li>
             </ul>
             <button
               onClick={() => navigate("/login")}
