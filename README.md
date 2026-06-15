@@ -1,53 +1,58 @@
 # LogicMint Coding Platform
 
-LogicMint is a full-stack coding platform built with the MERN stack.  
+LogicMint is a full-stack coding platform built with the MERN stack.
 It supports secure authentication, coding practice, timed contests, rankings, an AI assistant, and admin management tools.
 
 ## Features
 
-- User authentication (email/password + Google)
-- Practice problems with progress tracking
-- Online compiler execution
-- Contest lifecycle:
-  - current/upcoming contests
-  - previous contests
-  - user attempt tracking
-- Leaderboard and score aggregation
-- User profile with:
-  - editable username/profile image
-  - submission heatmap
-  - learning path progress
-- Admin panel:
-  - user controls
-  - contest creation
-  - contest history view
-- Dark/light theme across pages
-- AI assistant with persistent chat history
+* User authentication (email/password)
+* Practice problems with progress tracking
+* Online compiler execution
+* Contest lifecycle:
+
+  * current/upcoming contests
+  * previous contests
+  * user attempt tracking
+* Leaderboard and score aggregation
+* User profile with:
+
+  * editable username/profile image
+  * submission heatmap
+  * learning path progress
+* Admin panel:
+
+  * user controls
+  * contest creation
+  * contest history view
+* Dark/light theme across pages
+* AI assistant with persistent chat history
 
 ## Technology Used
 
 ### Frontend
-- React
-- Vite
-- Tailwind CSS
-- React Router
-- Axios
-- Firebase Authentication
-- Monaco Editor
-- Chart.js
+
+* React
+* Vite
+* Tailwind CSS
+* React Router
+* Axios
+* Monaco Editor
+* Chart.js
 
 ### Backend
-- Node.js
-- Express
-- MongoDB + Mongoose
-- JWT Authentication
-- Nodemailer
-- Socket.io
+
+* Node.js
+* Express
+* MongoDB + Mongoose
+* JWT Authentication
+* Nodemailer
+* Socket.io
 
 ### Deploy
-- Frontend: Vercel
-- Backend: Render
-- Database: MongoDB Atlas
+
+* Frontend: Vercel
+* Backend: Render
+* Database: MongoDB Atlas
 
 ## Project Structure
 
@@ -117,10 +122,14 @@ Frontend will run on `http://localhost:5173` and backend on `http://localhost:40
 
 ## Build for Production
 
+### Frontend
+
 ```bash
 cd Frontend
 npm run build
 ```
+
+### Backend
 
 ```bash
 cd Backend
@@ -129,23 +138,20 @@ node --check server.js
 
 ## Important Setup Notes
 
-### Google Sign-In
-- Add your frontend domain to Firebase authorized domains.
-- Example production domain: `logic-mint.vercel.app`
-
 ### Forgot Password Email
-- Configure SMTP or EMAIL credentials in backend environment variables.
-- Use app passwords when required by your email provider.
+
+* Configure SMTP or EMAIL credentials in backend environment variables.
+* Use app passwords when required by your email provider.
 
 ## API Overview
 
-- Auth APIs: `/api/auth/*`
-- Practice APIs: `/question-api/*`
-- Compiler APIs: `/compiler-api/*`
-- Contest APIs: `/contest-api/*`
-- Admin APIs: `/admin-api/*`
-- Leaderboard APIs: `/leaderboard-api/*`
-- AI APIs: `/ai-api/*`
+* Auth APIs: `/api/auth/*`
+* Practice APIs: `/question-api/*`
+* Compiler APIs: `/compiler-api/*`
+* Contest APIs: `/contest-api/*`
+* Admin APIs: `/admin-api/*`
+* Leaderboard APIs: `/leaderboard-api/*`
+* AI APIs: `/ai-api/*`
 
 ## License
 
